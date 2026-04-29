@@ -509,44 +509,94 @@ const App: React.FC = () => {
               initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
               className="modal" onClick={e => e.stopPropagation()}
             >
-              <div className="modal-header">
-                <h2 className="gradient-text">E-TICKET EVENT</h2>
+              <div className="modal-header" style={{ padding: '24px 32px 0' }}>
+                <h2 className="gradient-text">E-TICKET PREVIEW</h2>
                 <button className="btn-icon" onClick={() => setSelectedParticipant(null)}><X size={18} /></button>
               </div>
 
-              <div className="ticket-barcode-box">
-                <Barcode value={selectedParticipant.barcode} format="CODE128" width={2} height={75} background="#ffffff" />
-              </div>
+              <div className="modal-content-padding">
+                <div className="premium-ticket">
+                  <div className="ticket-header-banner">TIKET MASUK</div>
+                  
+                  <div className="ticket-logo-box">
+                    <div style={{ fontWeight: 800, fontSize: '1.2rem', color: '#063162', textAlign: 'center' }}>
+                      ruang<span style={{ color: '#0ea5e9' }}>tenang</span>
+                    </div>
+                    <div style={{ fontSize: '0.6rem', color: '#64748b', textAlign: 'center' }}>Menemukan Diri, Menata Hati</div>
+                  </div>
 
-              <div className="ticket-details">
-                <div>
-                  <div className="ticket-detail-label">Nama Peserta</div>
-                  <div className="ticket-detail-value">{selectedParticipant.nama_lengkap}</div>
-                </div>
-                <div>
-                  <div className="ticket-detail-label">Nomor Barcode</div>
-                  <div className="ticket-detail-value" style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{selectedParticipant.barcode}</div>
-                </div>
-                <div>
-                  <div className="ticket-detail-label">Jenis Tiket</div>
-                  <div className="ticket-detail-value">{selectedParticipant.jenis_tiket}</div>
-                </div>
-                <div>
-                  <div className="ticket-detail-label">Status Absen</div>
-                  <span className={`pill ${selectedParticipant.status_absen.toLowerCase()}`}>{selectedParticipant.status_absen}</span>
-                </div>
-              </div>
+                  <div style={{ textAlign: 'center', padding: '0 20px' }}>
+                    <h1 className="ticket-main-title">Jalan Pulang</h1>
+                    <p className="ticket-tagline">"Tempat Kamu Bisa Jujur Tanpa Dihakimi"</p>
+                  </div>
 
-              <div className="ticket-actions">
-                <button className="btn btn-primary" style={{ background: '#25D366' }} onClick={() => sendWhatsApp(selectedParticipant)}>
-                  <Send size={16} /> WhatsApp
-                </button>
-                <button className="btn btn-primary" style={{ background: '#EA4335' }} onClick={() => sendEmail(selectedParticipant)}>
-                  <Send size={16} /> Email
-                </button>
-                <button className="btn btn-ghost" onClick={() => window.print()}>
-                  <Download size={16} /> Cetak
-                </button>
+                  <div className="ticket-heart-divider">
+                    <span></span>
+                    <Plus size={14} style={{ color: '#063162', transform: 'rotate(45deg)' }} />
+                    <span></span>
+                  </div>
+
+                  <div className="ticket-details-grid">
+                    <div className="detail-row">
+                      <div className="detail-label">HARI/TANGGAL</div>
+                      <div className="detail-separator">:</div>
+                      <div className="detail-value">Sabtu, 11 Juli 2026</div>
+                    </div>
+                    <div className="detail-row">
+                      <div className="detail-label">WAKTU</div>
+                      <div className="detail-separator">:</div>
+                      <div className="detail-value">08.00 - 11.00</div>
+                    </div>
+                    <div className="detail-row">
+                      <div className="detail-label">LOKASI</div>
+                      <div className="detail-separator">:</div>
+                      <div className="detail-value">Hotel Zahra, Kota Kendari</div>
+                    </div>
+                    <div className="detail-row">
+                      <div className="detail-label">KATEGORI</div>
+                      <div className="detail-separator">:</div>
+                      <div className="detail-value">{selectedParticipant.jenis_tiket.toUpperCase()}</div>
+                    </div>
+                    <div className="detail-row">
+                      <div className="detail-label">PESERTA</div>
+                      <div className="detail-separator">:</div>
+                      <div className="detail-value">{selectedParticipant.nama_lengkap.toUpperCase()}</div>
+                    </div>
+                  </div>
+
+                  <div className="ticket-number-box">
+                    <div className="ticket-number-label">NO. TIKET</div>
+                    <div className="ticket-number-value">000{selectedParticipant.barcode.slice(-1)}</div>
+                  </div>
+
+                  <div style={{ padding: '0 32px 20px', display: 'flex', justifyContent: 'center' }}>
+                    <Barcode 
+                      value={selectedParticipant.barcode} 
+                      format="CODE128" 
+                      width={1.5} 
+                      height={50} 
+                      displayValue={false}
+                      background="transparent" 
+                    />
+                  </div>
+
+                  <div className="ticket-footer-dark">
+                    TIKET INI HANYA BERLAKU UNTUK 1 (SATU) ORANG
+                    <span>Tidak dapat dipindahtangankan | Non refundable</span>
+                  </div>
+                </div>
+
+                <div className="ticket-actions">
+                  <button className="btn btn-primary" style={{ background: '#25D366' }} onClick={() => sendWhatsApp(selectedParticipant)}>
+                    <Send size={16} /> WhatsApp
+                  </button>
+                  <button className="btn btn-primary" style={{ background: '#EA4335' }} onClick={() => sendEmail(selectedParticipant)}>
+                    <Send size={16} /> Email
+                  </button>
+                  <button className="btn btn-ghost btn-print" onClick={() => window.print()}>
+                    <Download size={16} /> Cetak E-Tiket
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
