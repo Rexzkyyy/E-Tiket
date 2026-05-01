@@ -448,6 +448,7 @@ tbody tr:last-child td { border-bottom: none; }
   justify-content: center;
   z-index: 1000;
   padding: 20px;
+  overflow-y: auto;
 }
 
 .modal {
@@ -641,6 +642,7 @@ tbody tr:last-child td { border-bottom: none; }
   .ticket-footer-dark { background: #063162 !important; -webkit-print-color-adjust: exact; }
 }
 
+
 .ticket-actions {
   display: flex;
   gap: 10px;
@@ -767,5 +769,217 @@ tbody tr:last-child td { border-bottom: none; }
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin-right: 12px;
+  }
+
+  .overlay {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .modal {
+    margin: 20px auto;
+  }
+
+  /* Premium Ticket Mobile Overrides */
+  .premium-ticket {
+    border-width: 5px !important;
+    border-left-width: 12px !important;
+    border-radius: 16px;
+  }
+
+  .premium-ticket::before {
+    left: -7px;
+    border-left-width: 2px;
+  }
+
+  .ticket-header-banner {
+    padding: 4px 15px;
+    font-size: 0.75rem;
+    margin-top: 12px;
+  }
+
+  .ticket-logo-box {
+    padding: 6px 12px;
+    margin-bottom: 10px;
+  }
+
+  .ticket-main-title {
+    font-size: 1.4rem;
+    line-height: 1.2;
+  }
+
+  .ticket-tagline {
+    font-size: 0.75rem;
+    margin-bottom: 8px;
+    max-width: 90%;
+  }
+
+  .ticket-details-grid {
+    padding: 0 12px;
+    gap: 6px;
+  }
+
+  .detail-row {
+    font-size: 0.7rem;
+    padding-bottom: 2px;
+  }
+
+  .detail-label {
+    width: 80px;
+  }
+
+  .ticket-number-box {
+    margin: 12px 12px 10px;
+  }
+
+  .ticket-number-label {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .ticket-number-value {
+    font-size: 1.1rem;
+    padding: 4px;
+    letter-spacing: 0.1em;
+  }
+
+  .ticket-footer-dark {
+    font-size: 0.6rem;
+    padding: 10px;
+  }
+
+  .modal-content-padding {
+    padding: 16px;
+  }
+}
+
+/* ========================
+   PUBLIC TICKET PAGE
+======================== */
+.public-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: var(--bg);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(79, 70, 229, 0.1) 0%, transparent 70%);
+}
+
+.ticket-wrapper {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.public-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.status-badge.success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-badge.pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.error-card {
+  padding: 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 400px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 480px) {
+  .ticket-wrapper {
+    max-width: 100%;
+  }
+  
+  .premium-ticket {
+    border-left-width: 10px !important;
+  }
+  
+  .ticket-main-title {
+    font-size: 1.8rem;
+  }
+  
+  .detail-label {
+    width: 100px;
+    font-size: 0.75rem;
+  }
+  
+  .detail-value {
+    font-size: 0.8rem;
+  }
+}
+
+/* Khusus untuk layar sangat kecil (di bawah 350px) agar tidak pecah */
+@media (max-width: 350px) {
+  .ticket-wrapper {
+    transform: scale(0.85);
+    transform-origin: top center;
+    margin-bottom: -50px; /* Kompensasi scale */
+  }
+}
+
+/* Khusus untuk ukuran ekstrim 200px - 250px */
+@media (max-width: 250px) {
+  .ticket-wrapper {
+    transform: scale(0.6);
+    transform-origin: top center;
+    margin-bottom: -150px;
+  }
+  
+  .public-container {
+    padding: 10px 5px;
+  }
+}
+
+.no-print {
+  display: flex;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .public-container {
+    background: none !important;
+    padding: 0;
   }
 }
