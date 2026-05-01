@@ -20,6 +20,13 @@ interface Participant {
   [key: string]: any;
 }
 
+const formatTicketCode = (code: string) => {
+  if (!code) return '';
+  if (code.startsWith('RTJP')) return code;
+  if (!isNaN(Number(code)) && code.length > 5) return `RTJP${code.slice(-3)}`;
+  return `RTJP${code.padStart(3, '0')}`;
+};
+
 const PublicTicket: React.FC = () => {
   const { barcode } = useParams<{ barcode: string }>();
   const [participant, setParticipant] = useState<Participant | null>(null);
@@ -62,7 +69,7 @@ const PublicTicket: React.FC = () => {
         backgroundColor: '#ffffff',
         logging: false,
       });
-      
+
       const image = canvas.toDataURL('image/png', 1.0);
       const link = document.createElement('a');
       link.download = `Ticket-${participant?.nama_lengkap || 'Download'}.png`;
@@ -98,83 +105,122 @@ const PublicTicket: React.FC = () => {
   }
 
   return (
-    <div className="public-container">
+    <div className="public-ticket-page">
+      {/* Decorative Lively Background Elements */}
+      <div className="bg-aurora-1"></div>
+      <div className="bg-aurora-2"></div>
+
+      {/* Page Hero branding */}
+      <header className="public-hero">
+        <div className="hero-content">
+          <div className="coach-badge">
+            <img src="/coach zul3.png" alt="Coach Zul" />
+          </div>
+          <div className="hero-text">
+            <span className="event-date">11 JULI 2026 • HOTEL ZAHRA</span>
+            <h1>JALAN PULANG</h1>
+            <p>Bersama Coach Zulkifli Bilondatu</p>
+          </div>
+        </div>
+      </header>
+
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="ticket-wrapper"
       >
-        <div ref={ticketRef} className="premium-ticket">
-          <div className="ticket-header-banner">TIKET MASUK RESMI</div>
-          
-          <div className="ticket-logo-box">
-            <div style={{ fontWeight: 800, fontSize: '1.2rem', color: '#063162', textAlign: 'center' }}>
-              ruang<span style={{ color: '#0ea5e9' }}>tenang</span>
-            </div>
-            <div style={{ fontSize: '0.6rem', color: '#64748b', textAlign: 'center' }}>Menemukan Diri, Menata Hati</div>
+        {/* ULTIMATE HYBRID TICKET (UNIFIED HEADER & FOOTER) */}
+        <div ref={ticketRef} className="ultimate-hybrid-ticket">
+          {/* UNIFIED DARK HEADER */}
+          <div className="unified-ticket-header">
+            OFFICIAL E-TICKET • JALAN PULANG 2026
           </div>
 
-          <div style={{ textAlign: 'center', padding: '0 20px' }}>
-            <h1 className="ticket-main-title">Jalan Pulang</h1>
-            <p className="ticket-tagline">"Tempat Kamu Bisa Jujur Tanpa Dihakimi"</p>
+          <div className="ticket-main-content">
+            {/* Left Side: Visual Flyer */}
+            <div className="visual-flyer-side">
+              <img src="/tiket.jpeg" alt="Event Flyer" className="flyer-img" />
+            </div>
+
+            {/* Right Side: THE EXACT PORTRAIT STUB */}
+            <div className="official-stub-side">
+              {/* Decorative Notches */}
+              <div className="official-stub-side-notch-bottom"></div>
+              
+              {/* Header Badge */}
+              <div className="stub-badge">TIKET MASUK RESMI</div>
+              
+              {/* Logo Card */}
+              <div className="stub-logo-card">
+                <div className="logo-text">ruang<span>tenang</span></div>
+                <div className="logo-sub">Menemukan Diri, Menata Hati</div>
+              </div>
+
+              {/* Title & Tagline */}
+              <div className="stub-titles">
+                <h2 className="title-serif">Jalan Pulang</h2>
+                <p className="tagline-italic">"Tempat Kamu Bisa Jujur Tanpa Dihakimi"</p>
+              </div>
+
+              {/* Divider with X */}
+              <div className="stub-divider-x">
+                <span></span>
+                <div className="x-mark">×</div>
+                <span></span>
+              </div>
+
+              {/* Full Info Grid */}
+              <div className="stub-info-grid">
+                <div className="s-row">
+                  <span className="s-label">HARI/TGL</span>
+                  <span className="s-val">Sabtu, 11 Juli 2026</span>
+                </div>
+                <div className="s-row">
+                  <span className="s-label">WAKTU</span>
+                  <span className="s-val">08.00 - 11.00</span>
+                </div>
+                <div className="s-row">
+                  <span className="s-label">LOKASI</span>
+                  <span className="s-val">Hotel Zahra, Kendari</span>
+                </div>
+                <div className="s-row">
+                  <span className="s-label">KATEGORI</span>
+                  <span className="s-val">{participant.jenis_tiket.toUpperCase()}</span>
+                </div>
+                <div className="s-row">
+                  <span className="s-label">PESERTA</span>
+                  <span className="s-val">{participant.nama_lengkap.toUpperCase()}</span>
+                </div>
+              </div>
+
+              {/* Yellow No Box */}
+              <div className="stub-no-box">
+                <div className="no-label">NO. TIKET</div>
+                <div className="no-val">{formatTicketCode(participant.barcode)}</div>
+              </div>
+
+              {/* Barcode Footer */}
+              <div className="stub-barcode-footer">
+                <Barcode 
+                  value={participant.barcode} 
+                  format="CODE128" 
+                  width={1.2} 
+                  height={40} 
+                  displayValue={false}
+                  background="transparent" 
+                />
+                <div className="b-code">{participant.barcode}</div>
+              </div>
+            </div>
           </div>
 
-          <div className="ticket-heart-divider">
-            <span></span>
-            <Plus size={14} style={{ color: '#063162', transform: 'rotate(45deg)' }} />
-            <span></span>
-          </div>
-
-          <div className="ticket-details-grid">
-            <div className="detail-row">
-              <div className="detail-label">HARI/TANGGAL</div>
-              <div className="detail-separator">:</div>
-              <div className="detail-value">Sabtu, 11 Juli 2026</div>
-            </div>
-            <div className="detail-row">
-              <div className="detail-label">WAKTU</div>
-              <div className="detail-separator">:</div>
-              <div className="detail-value">08.00 - 11.00</div>
-            </div>
-            <div className="detail-row">
-              <div className="detail-label">LOKASI</div>
-              <div className="detail-separator">:</div>
-              <div className="detail-value">Hotel Zahra, Kota Kendari</div>
-            </div>
-            <div className="detail-row">
-              <div className="detail-label">KATEGORI</div>
-              <div className="detail-separator">:</div>
-              <div className="detail-value">{participant.jenis_tiket.toUpperCase()}</div>
-            </div>
-            <div className="detail-row">
-              <div className="detail-label">PESERTA</div>
-              <div className="detail-separator">:</div>
-              <div className="detail-value">{participant.nama_lengkap.toUpperCase()}</div>
-            </div>
-          </div>
-
-          <div className="ticket-number-box">
-            <div className="ticket-number-label">NO. TIKET</div>
-            <div className="ticket-number-value">000{participant.barcode.slice(-1)}</div>
-          </div>
-
-          <div style={{ padding: '0 32px 20px', display: 'flex', justifyContent: 'center', background: 'white' }}>
-            <Barcode 
-              value={participant.barcode} 
-              format="CODE128" 
-              width={1.2} 
-              height={50} 
-              displayValue={true}
-              background="transparent" 
-            />
-          </div>
-
-          <div className="ticket-footer-dark">
-            TIKET INI HANYA BERLAKU UNTUK 1 (SATU) ORANG
-            <span>Tunjukkan barcode ini kepada petugas saat memasuki lokasi</span>
+          {/* UNIFIED DARK FOOTER */}
+          <div className="unified-ticket-footer">
+            TIKET INI HANYA BERLAKU UNTUK 1 (SATU) ORANG • TUNJUKKAN BARCODE KEPADA PETUGAS SAAT MEMASUKI LOKASI
           </div>
         </div>
 
+        {/* Action Buttons */}
         <div className="public-actions no-print">
           <button className="btn btn-primary" onClick={downloadAsImage} disabled={isDownloading}>
             {isDownloading ? <div className="loading-spinner" style={{ width: '16px', height: '16px', margin: 0 }}></div> : <ImageIcon size={18} />}
@@ -194,6 +240,10 @@ const PublicTicket: React.FC = () => {
           )}
         </div>
       </motion.div>
+      
+      <footer className="public-footer">
+        <p>© 2026 Ruang Tenang. All rights reserved.</p>
+      </footer>
     </div>
   );
 };
