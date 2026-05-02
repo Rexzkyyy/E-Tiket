@@ -364,8 +364,8 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <button type="submit" className="submit-btn">{editingParticipant ? 'Simpan Perubahan' : 'Tambah Peserta'}</button>
               </form>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
 
         {showScanner && (
