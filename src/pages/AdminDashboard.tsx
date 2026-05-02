@@ -41,12 +41,15 @@ const AdminDashboard: React.FC = () => {
   const [showScanner, setShowScanner] = useState(false);
   const [scanResult, setScanResult] = useState<{ success: boolean, message: string } | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+
   const fetchParticipants = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('participants')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false }); // Urutan data terbaru di atas
 
     if (!error && data) {
       setParticipants(data);
@@ -56,9 +59,9 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchParticipants();
-  }, []);
+  }, [fetchParticipants]);
 
-  const handleImportExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportExcel = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -81,9 +84,9 @@ const AdminDashboard: React.FC = () => {
       fetchParticipants();
     };
     reader.readAsArrayBuffer(file);
-  };
+  }, [fetchParticipants]);
 
-  const handleAddOrEdit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAddOrEdit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = {
@@ -102,7 +105,7 @@ const AdminDashboard: React.FC = () => {
     setShowAddModal(false);
     setEditingParticipant(null);
     fetchParticipants();
-  };
+  }, [editingParticipant, fetchParticipants]);
 
   const deleteParticipant = useCallback(async (id: string) => {
     if (window.confirm('Hapus peserta ini?')) {
@@ -117,7 +120,7 @@ const AdminDashboard: React.FC = () => {
     window.open(`https://wa.me/${p.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
   }, []);
 
-  const startScanner = () => {
+  const startScanner = useCallback(() => {
     setShowScanner(true);
     setTimeout(() => {
       const scanner = new Html5QrcodeScanner("reader", { fps: 15, qrbox: 250 }, false);
@@ -139,7 +142,7 @@ const AdminDashboard: React.FC = () => {
         setTimeout(() => setScanResult(null), 3000);
       }, () => {});
     }, 100);
-  };
+  }, [fetchParticipants]);
 
   const stats = useMemo(() => ({
     total: participants.length,
@@ -148,28 +151,48 @@ const AdminDashboard: React.FC = () => {
     attended: participants.filter(p => p.status_absen === 'SUDAH').length,
   }), [participants]);
 
-  const filteredParticipants = participants.filter(p => 
-    p.nama_lengkap.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.barcode.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredParticipants = useMemo(() => {
+    return participants.filter(p => 
+      p.nama_lengkap.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.barcode.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [participants, searchTerm]);
+
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredParticipants.length / itemsPerPage);
+  const paginatedParticipants = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredParticipants.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredParticipants, currentPage, itemsPerPage]);
 
   return (
     <div className="admin-layout">
       {/* Sidebar Branding */}
       <aside className="admin-sidebar">
-        <div className="sidebar-brand">
-          <div className="brand-logo">
-            <img src="/coach zul3.png" alt="Coach Zul" className="coach-avatar" />
+        <div className="sidebar-brand-premium">
+          <div className="avatar-wrapper desktop-only">
+            <img src="/coach zul3.png" alt="Coach Zul" className="avatar-img" />
+            <div className="avatar-overlay"></div>
           </div>
-          <h2>Ruang Tenang</h2>
-          <p>Official Event Management</p>
+          <div className="logo-wrapper">
+             <h2 className="brand-title-premium">Ruang<span>Tenang</span></h2>
+          </div>
+          <p className="brand-subtitle">Official Event Management</p>
         </div>
         
         <nav className="sidebar-nav">
-          <button className="nav-item active"><LayoutDashboard size={20} /> <span>Dashboard</span></button>
-          <button className="nav-item" onClick={startScanner}><Camera size={20} /> <span>Scan Tiket</span></button>
-          <button className="nav-item" onClick={() => setShowAddModal(true)}><Plus size={20} /> <span>Tambah Data</span></button>
-          <button className="nav-item" onClick={fetchParticipants}><RefreshCw size={20} /> <span>Refresh</span></button>
+          <button className="nav-item active" title="Dashboard">
+            <LayoutDashboard size={20} /> <span>Dashboard</span>
+          </button>
+          <button className="nav-item" onClick={startScanner} title="Scan Tiket QR">
+            <Camera size={20} /> <span>Scan Tiket</span>
+          </button>
+          <button className="nav-item" onClick={() => setShowAddModal(true)} title="Tambah Peserta Manual">
+            <Plus size={20} /> <span>Tambah Data</span>
+          </button>
+          <button className="nav-item" onClick={fetchParticipants} title="Refresh Data Peserta">
+            <RefreshCw size={20} /> <span>Refresh</span>
+          </button>
         </nav>
 
         <div className="sidebar-coach-info">
@@ -187,7 +210,10 @@ const AdminDashboard: React.FC = () => {
               type="text" 
               placeholder="Cari nama peserta atau kode tiket..." 
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reset to first page on search
+              }}
             />
           </div>
           <div className="header-profile">
@@ -199,29 +225,29 @@ const AdminDashboard: React.FC = () => {
         <div className="scroll-area">
           {/* Stats Bar */}
           <section className="stats-section">
-            <div className="stat-card-premium">
-              <div className="stat-icon-box blue"><Users /></div>
+            <div className="stat-card-premium blue">
+              <div className="stat-icon-box"><Users /></div>
               <div className="stat-text">
                 <span className="label">Total Peserta</span>
                 <span className="value">{stats.total}</span>
               </div>
             </div>
-            <div className="stat-card-premium">
-              <div className="stat-icon-box green"><ShieldCheck /></div>
+            <div className="stat-card-premium green">
+              <div className="stat-icon-box"><ShieldCheck /></div>
               <div className="stat-text">
                 <span className="label">Terverifikasi</span>
                 <span className="value">{stats.verified}</span>
               </div>
             </div>
-            <div className="stat-card-premium">
-              <div className="stat-icon-box yellow"><Clock /></div>
+            <div className="stat-card-premium gold">
+              <div className="stat-icon-box"><Clock /></div>
               <div className="stat-text">
                 <span className="label">Pending</span>
                 <span className="value">{stats.pending}</span>
               </div>
             </div>
-            <div className="stat-card-premium">
-              <div className="stat-icon-box purple"><History /></div>
+            <div className="stat-card-premium purple">
+              <div className="stat-icon-box"><History /></div>
               <div className="stat-text">
                 <span className="label">Check-in</span>
                 <span className="value">{stats.attended}</span>
@@ -236,10 +262,18 @@ const AdminDashboard: React.FC = () => {
             </div>
             <div className="toolbar-right">
               <div className="view-switcher">
-                <button className={viewMode === 'table' ? 'active' : ''} onClick={() => setViewMode('table')}>
+                <button 
+                  className={viewMode === 'table' ? 'active' : ''} 
+                  onClick={() => setViewMode('table')}
+                  title="Tampilan Tabel"
+                >
                   <TableIcon size={18} />
                 </button>
-                <button className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')}>
+                <button 
+                  className={viewMode === 'grid' ? 'active' : ''} 
+                  onClick={() => setViewMode('grid')}
+                  title="Tampilan Grid"
+                >
                   <LayoutGrid size={18} />
                 </button>
               </div>
@@ -263,7 +297,7 @@ const AdminDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredParticipants.map((p, index) => (
+                    {paginatedParticipants.map((p, index) => (
                       <tr key={p.id || `p-${index}`}>
                         <td>
                           <div className="cell-user">
@@ -300,7 +334,7 @@ const AdminDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="participant-grid">
-                {filteredParticipants.map((p, index) => (
+                {paginatedParticipants.map((p, index) => (
                   <div key={p.id || `g-${index}`} className="user-card-premium">
                     <div className="card-top">
                       <div className="card-avatar">{p.nama_lengkap.charAt(0)}</div>
@@ -319,8 +353,32 @@ const AdminDashboard: React.FC = () => {
                 ))}
               </div>
             )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="pagination-container">
+              <button 
+                className="btn-pagination" 
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => prev - 1)}
+              >
+                Previous
+              </button>
+              <div className="pagination-info">
+                Halaman <span>{currentPage}</span> dari {totalPages}
+              </div>
+              <button 
+                className="btn-pagination" 
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => prev + 1)}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </main>
+
 
       {/* MODALS */}
         {showAddModal && (
