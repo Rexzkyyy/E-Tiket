@@ -5,27 +5,12 @@ import Barcode from 'react-barcode';
 import { motion } from 'framer-motion';
 import { Info, Download, ShieldCheck, Plus, Image as ImageIcon } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 // Use credentials from your existing config or environment
-const SB_URL = 'https://tydfbrcdvzeggrlzabfq.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5ZGZicmNkdnplZ2dybHphYmZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTUyMDEsImV4cCI6MjA5MzAzMTIwMX0.75_AK06B7aGjIbZk_rG6KBgD6yqDHygPRYg_GHeMJ6o';
-const supabase = createClient(SB_URL, SB_KEY);
-
-interface Participant {
-  barcode: string;
-  nama_lengkap: string;
-  jenis_tiket: string;
-  validasi_bayar: string;
-  status_absen: string;
-  [key: string]: any;
-}
-
-const formatTicketCode = (code: string) => {
-  if (!code) return '';
-  if (code.startsWith('RTJP')) return code;
-  if (!isNaN(Number(code)) && code.length > 5) return `RTJP${code.slice(-3)}`;
-  return `RTJP${code.padStart(3, '0')}`;
-};
+import { supabase } from '../supabaseClient';
+import { formatTicketCode } from '../utils';
+import { Participant } from '../types';
 
 const PublicTicket: React.FC = () => {
   const { barcode } = useParams<{ barcode: string }>();
@@ -77,6 +62,37 @@ const PublicTicket: React.FC = () => {
       link.click();
     } catch (err) {
       console.error('Download failed', err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const downloadAsPDF = async () => {
+    if (!ticketRef.current) return;
+    setIsDownloading(true);
+    try {
+      const canvas = await html2canvas(ticketRef.current, {
+        scale: 2, // Good balance for PDF
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      
+      // Calculate orientation based on canvas aspect ratio
+      const orientation = canvas.width > canvas.height ? 'landscape' : 'portrait';
+      
+      const pdf = new jsPDF({
+        orientation: orientation,
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`Ticket-${participant?.nama_lengkap || 'Download'}.pdf`);
+    } catch (err) {
+      console.error('PDF download failed', err);
     } finally {
       setIsDownloading(false);
     }
@@ -152,8 +168,7 @@ const PublicTicket: React.FC = () => {
               
               {/* Logo Card */}
               <div className="stub-logo-card">
-                <div className="logo-text">ruang<span>tenang</span></div>
-                <div className="logo-sub">Menemukan Diri, Menata Hati</div>
+                <img src="/logo_ruang_tenang.jpg-removebg-preview.png" alt="Ruang Tenang Logo" className="stub-logo-img" />
               </div>
 
               {/* Title & Tagline */}
@@ -224,10 +239,11 @@ const PublicTicket: React.FC = () => {
         <div className="public-actions no-print">
           <button className="btn btn-primary" onClick={downloadAsImage} disabled={isDownloading}>
             {isDownloading ? <div className="loading-spinner" style={{ width: '16px', height: '16px', margin: 0 }}></div> : <ImageIcon size={18} />}
-            Simpan Sebagai Gambar (PNG)
+            Unduh Gambar (PNG)
           </button>
-          <button className="btn btn-ghost" onClick={() => window.print()}>
-            <Download size={18} /> Cetak / PDF
+          <button className="btn btn-secondary" onClick={downloadAsPDF} disabled={isDownloading}>
+            {isDownloading ? <div className="loading-spinner" style={{ width: '16px', height: '16px', margin: 0 }}></div> : <Download size={18} />}
+            Unduh Versi PDF
           </button>
           {participant.validasi_bayar === 'Approved' ? (
             <div className="status-badge success">

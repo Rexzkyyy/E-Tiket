@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import {
   Upload,
@@ -26,33 +26,11 @@ import {
   Tag,
   FileDown
 } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../supabaseClient';
+import { formatTicketCode } from '../utils';
+import { Participant } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Html5QrcodeScanner } from 'html5-qrcode';
-
-// Supabase Configuration
-const SB_URL = 'https://tydfbrcdvzeggrlzabfq.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5ZGZicmNkdnplZ2dybHphYmZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTUyMDEsImV4cCI6MjA5MzAzMTIwMX0.75_AK06B7aGjIbZk_rG6KBgD6yqDHygPRYg_GHeMJ6o';
-const supabase = createClient(SB_URL, SB_KEY);
-
-interface Participant {
-  id: string;
-  barcode: string;
-  nama_lengkap: string;
-  whatsapp: string;
-  jenis_tiket: string;
-  validasi_bayar: 'BELUM' | 'SUDAH';
-  status_absen: 'BELUM' | 'SUDAH';
-  created_at?: string;
-  [key: string]: any;
-}
-
-const formatTicketCode = (code: string) => {
-  if (!code) return '';
-  if (code.startsWith('RTJP')) return code;
-  if (!isNaN(Number(code)) && code.length > 5) return `RTJP${code.slice(-3)}`;
-  return `RTJP${code.padStart(3, '0')}`;
-};
 
 const AdminDashboard: React.FC = () => {
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -64,7 +42,7 @@ const AdminDashboard: React.FC = () => {
   const [showScanner, setShowScanner] = useState(false);
   const [scanResult, setScanResult] = useState<{ success: boolean, message: string } | null>(null);
 
-  const fetchParticipants = async () => {
+  const fetchParticipants = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('participants')
@@ -75,7 +53,7 @@ const AdminDashboard: React.FC = () => {
       setParticipants(data);
     }
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     fetchParticipants();
@@ -127,18 +105,18 @@ const AdminDashboard: React.FC = () => {
     fetchParticipants();
   };
 
-  const deleteParticipant = async (id: string) => {
+  const deleteParticipant = useCallback(async (id: string) => {
     if (window.confirm('Hapus peserta ini?')) {
       await supabase.from('participants').delete().eq('id', id);
       fetchParticipants();
     }
-  };
+  }, [fetchParticipants]);
 
-  const sendWhatsApp = (p: Participant) => {
+  const sendWhatsApp = useCallback((p: Participant) => {
     const ticketUrl = `${window.location.origin}/t/${p.barcode}`;
     const message = `Halo *${p.nama_lengkap}*,\n\nTerima kasih telah mendaftar. Berikut adalah E-Tiket Anda:\n\n*Nomor Tiket:* ${formatTicketCode(p.barcode)}\n*Jenis Tiket:* ${p.jenis_tiket}\n\n*Lihat E-Tiket Resmi:* \n${ticketUrl}\n\nMohon tunjukkan barcode di link tersebut kepada panitia saat registrasi ulang. Sampai jumpa!`;
     window.open(`https://wa.me/${p.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
-  };
+  }, []);
 
   const startScanner = () => {
     setShowScanner(true);

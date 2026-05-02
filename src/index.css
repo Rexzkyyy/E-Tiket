@@ -134,6 +134,18 @@ body {
   box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
 }
 
+.btn-secondary {
+  background: var(--secondary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #0284c7;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+}
+
 .btn-ghost {
   background: rgba(255, 255, 255, 0.06);
   color: var(--text-muted);
@@ -1871,12 +1883,23 @@ tbody tr:last-child td {
 }
 
 .stub-logo-card {
-  background: white;
-  padding: 12px 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
   text-align: center;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+}
+
+.stub-logo-img {
+  max-width: 250px;
+  max-height: 100px;
+  object-fit: contain;
+  transform: scale(1.35); /* Enlarge even more visually */
 }
 
 .logo-text { font-size: 1.2rem; font-weight: 900; color: #063162; }
@@ -1973,15 +1996,6 @@ tbody tr:last-child td {
   font-weight: 800;
   font-size: 0.75rem;
   margin-bottom: 12px;
-}
-
-.stub-logo-card {
-  background: white;
-  padding: 10px 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-  text-align: center;
-  margin-bottom: 15px;
 }
 
 .logo-text { font-size: 1.1rem; font-weight: 900; color: #063162; }
