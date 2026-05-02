@@ -96,21 +96,53 @@ const AdminDashboard: React.FC = () => {
       whatsapp: formData.get('whatsapp') as string,
     };
 
+    let result;
     if (editingParticipant) {
-      await supabase.from('participants').update(data).eq('id', editingParticipant.id);
+      result = await supabase.from('participants').update(data).eq('barcode', editingParticipant.barcode);
     } else {
-      await supabase.from('participants').insert([{ ...data, barcode: formData.get('barcode') as string, status_absen: 'BELUM' }]);
+      result = await supabase.from('participants').insert([{ 
+        ...data, 
+        barcode: formData.get('barcode') as string || Math.floor(Math.random() * 1000000000).toString(), 
+        status_absen: 'BELUM' 
+      }]);
     }
 
-    setShowAddModal(false);
-    setEditingParticipant(null);
-    fetchParticipants();
+    if (result.error) {
+      setScanResult({ success: false, message: 'Gagal menyimpan data!' });
+    } else {
+      setScanResult({ success: true, message: editingParticipant ? 'Data berhasil diupdate' : 'Peserta berhasil ditambahkan' });
+      setShowAddModal(false);
+      setEditingParticipant(null);
+      fetchParticipants();
+    }
+    setTimeout(() => setScanResult(null), 3000);
   }, [editingParticipant, fetchParticipants]);
 
-  const deleteParticipant = useCallback(async (id: string) => {
-    if (window.confirm('Hapus peserta ini?')) {
-      await supabase.from('participants').delete().eq('id', id);
+  const updateParticipantStatus = useCallback(async (barcode: string, status: 'SUDAH' | 'BELUM') => {
+    const { error } = await supabase
+      .from('participants')
+      .update({ validasi_bayar: status })
+      .eq('barcode', barcode);
+
+    if (error) {
+      setScanResult({ success: false, message: 'Gagal memperbarui status!' });
+    } else {
+      setScanResult({ success: true, message: `Status diperbarui ke ${status === 'SUDAH' ? 'LUNAS' : 'BELUM LUNAS'}` });
       fetchParticipants();
+    }
+    setTimeout(() => setScanResult(null), 3000);
+  }, [fetchParticipants]);
+
+  const deleteParticipant = useCallback(async (barcode: string) => {
+    if (window.confirm('Hapus peserta ini?')) {
+      const { error } = await supabase.from('participants').delete().eq('barcode', barcode);
+      if (error) {
+        setScanResult({ success: false, message: 'Gagal menghapus data!' });
+      } else {
+        setScanResult({ success: true, message: 'Data berhasil dihapus' });
+        fetchParticipants();
+      }
+      setTimeout(() => setScanResult(null), 3000);
     }
   }, [fetchParticipants]);
 
@@ -319,12 +351,21 @@ const AdminDashboard: React.FC = () => {
                             {p.status_absen === 'SUDAH' ? 'Attended' : 'Not Yet'}
                           </span>
                         </td>
-                        <td>
+                         <td>
                           <div className="row-actions">
+                            {p.validasi_bayar === 'BELUM' && (
+                              <button 
+                                className="action-circle success" 
+                                onClick={() => updateParticipantStatus(p.barcode, 'SUDAH')} 
+                                title="Set Lunas"
+                              >
+                                <CheckCircle size={14} />
+                              </button>
+                            )}
                             <button className="action-circle wa" onClick={() => sendWhatsApp(p)} title="Kirim WA"><MessageCircle size={14} /></button>
-                            <button className="action-circle edit" onClick={() => { setEditingParticipant(p); setShowAddModal(true); }}><Edit size={14} /></button>
-                            <button className="action-circle view" onClick={() => window.open(`/t/${p.barcode}`, '_blank')}><ExternalLink size={14} /></button>
-                            <button className="action-circle delete" onClick={() => deleteParticipant(p.id)}><Trash2 size={14} /></button>
+                            <button className="action-circle edit" onClick={() => { setEditingParticipant(p); setShowAddModal(true); }} title="Edit Data"><Edit size={14} /></button>
+                            <button className="action-circle view" onClick={() => window.open(`/t/${p.barcode}`, '_blank')} title="Lihat Tiket"><ExternalLink size={14} /></button>
+                            <button className="action-circle delete" onClick={() => deleteParticipant(p.barcode)} title="Hapus Data"><Trash2 size={14} /></button>
                           </div>
                         </td>
                       </tr>
@@ -345,7 +386,10 @@ const AdminDashboard: React.FC = () => {
                       <p className="p-category">{p.jenis_tiket}</p>
                       <code className="p-code">{formatTicketCode(p.barcode)}</code>
                     </div>
-                    <div className="card-actions">
+                     <div className="card-actions">
+                      {p.validasi_bayar === 'BELUM' && (
+                        <button onClick={() => updateParticipantStatus(p.barcode, 'SUDAH')} className="verify">Verify</button>
+                      )}
                       <button onClick={() => sendWhatsApp(p)} className="wa">WhatsApp</button>
                       <button onClick={() => { setEditingParticipant(p); setShowAddModal(true); }}>Edit</button>
                     </div>

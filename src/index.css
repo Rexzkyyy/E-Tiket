@@ -1324,6 +1324,7 @@ tbody tr:last-child td {
   box-shadow: 0 4px 8px rgba(0,0,0,0.02);
 }
 
+.action-circle.success { color: #10b981; background: #dcfce7; }
 .action-circle.wa { color: #22c55e; background: #f0fdf4; }
 .action-circle.edit { color: #3b82f6; background: #eff6ff; }
 .action-circle.view { color: #6366f1; background: #eef2ff; }
@@ -1423,6 +1424,16 @@ tbody tr:last-child td {
   background: #f1f5f9;
   color: var(--admin-text-main);
   transition: all 0.2s;
+}
+
+.card-actions button.verify {
+  background: #10b981;
+  color: white;
+  box-shadow: 0 8px 15px rgba(16, 185, 129, 0.2);
+}
+
+.card-actions button.verify:hover {
+  background: #059669;
 }
 
 .card-actions button.wa {
