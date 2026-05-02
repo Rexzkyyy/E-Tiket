@@ -29,7 +29,7 @@ import {
 import { supabase } from '../supabaseClient';
 import { formatTicketCode } from '../utils';
 import { Participant } from '../types';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const AdminDashboard: React.FC = () => {
@@ -167,10 +167,10 @@ const AdminDashboard: React.FC = () => {
         </div>
         
         <nav className="sidebar-nav">
-          <button className="nav-item active"><LayoutDashboard size={20} /> Dashboard</button>
-          <button className="nav-item" onClick={startScanner}><Camera size={20} /> Scan Tiket</button>
-          <button className="nav-item" onClick={() => setShowAddModal(true)}><Plus size={20} /> Tambah Data</button>
-          <button className="nav-item" onClick={fetchParticipants}><RefreshCw size={20} /> Refresh</button>
+          <button className="nav-item active"><LayoutDashboard size={20} /> <span>Dashboard</span></button>
+          <button className="nav-item" onClick={startScanner}><Camera size={20} /> <span>Scan Tiket</span></button>
+          <button className="nav-item" onClick={() => setShowAddModal(true)}><Plus size={20} /> <span>Tambah Data</span></button>
+          <button className="nav-item" onClick={fetchParticipants}><RefreshCw size={20} /> <span>Refresh</span></button>
         </nav>
 
         <div className="sidebar-coach-info">
@@ -251,16 +251,8 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Participant List */}
-          <AnimatePresence mode="wait">
-            {viewMode === 'table' ? (
-              <motion.div 
-                key="table" 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }}
-                className="table-glass"
-              >
+          {viewMode === 'table' ? (
+              <div className="table-glass">
                 <table>
                   <thead>
                     <tr>
@@ -306,15 +298,9 @@ const AdminDashboard: React.FC = () => {
                     ))}
                   </tbody>
                 </table>
-              </motion.div>
+              </div>
             ) : (
-              <motion.div 
-                key="grid" 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }}
-                className="participant-grid"
-              >
+              <div className="participant-grid">
                 {filteredParticipants.map(p => (
                   <div key={p.id} className="user-card-premium">
                     <div className="card-top">
@@ -332,17 +318,15 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
                 ))}
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
         </div>
       </main>
 
       {/* MODALS */}
-      <AnimatePresence>
         {showAddModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay-glass">
-            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="modal-card">
+          <div className="modal-overlay-glass">
+            <div className="modal-card">
               <div className="modal-header">
                 <h3>{editingParticipant ? 'Edit Data Peserta' : 'Tambah Peserta Baru'}</h3>
                 <button onClick={() => { setShowAddModal(false); setEditingParticipant(null); }} className="close-btn"><X /></button>
@@ -385,7 +369,7 @@ const AdminDashboard: React.FC = () => {
         )}
 
         {showScanner && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay-glass">
+          <div className="modal-overlay-glass">
             <div className="scanner-container">
               <div className="scanner-header">
                 <h3>Scan Barcode Peserta</h3>
@@ -394,21 +378,17 @@ const AdminDashboard: React.FC = () => {
               <div id="reader"></div>
               <p className="scanner-hint">Arahkan kamera ke barcode pada tiket peserta</p>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {scanResult && (
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0, y: 50 }} 
+          <div 
             className={`toast-notification ${scanResult.success ? 'success' : 'error'}`}
           >
             {scanResult.success ? <CheckCircle size={20} /> : <X size={20} />}
             <span>{scanResult.message}</span>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </div>
   );
 };

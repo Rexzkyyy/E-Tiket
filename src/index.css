@@ -1393,14 +1393,107 @@ tbody tr:last-child td {
   .admin-sidebar h2, .admin-sidebar p, .sidebar-nav span, .sidebar-coach-info { display: none; }
   .nav-item { justify-content: center; padding: 12px; }
   .stats-section { grid-template-columns: repeat(2, 1fr); }
+  .sidebar-brand { margin-bottom: 20px; }
+  .coach-avatar { width: 40px; height: 40px; }
 }
 
 @media (max-width: 768px) {
-  .header-search { width: 100%; }
-  .stats-section { grid-template-columns: 1fr; }
-  .content-header { padding: 0 20px; }
+  .admin-layout { flex-direction: column; }
+  
+  .admin-sidebar { 
+    width: 100%; 
+    height: 70px; 
+    padding: 0; 
+    flex-direction: row; 
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    z-index: 100; 
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+  }
+  
+  .sidebar-brand, .sidebar-coach-info { display: none; }
+  
+  .sidebar-nav { 
+    flex-direction: row; 
+    justify-content: space-around; 
+    align-items: center;
+    width: 100%; 
+    padding: 0 10px;
+  }
+  
+  .nav-item { 
+    flex-direction: column; 
+    padding: 8px 12px; 
+    gap: 4px;
+    border-radius: 8px;
+  }
+  
+  .sidebar-nav span { 
+    display: block !important; 
+    font-size: 0.65rem; 
+    font-weight: 700;
+  }
+  
+  .admin-content { margin-bottom: 70px; height: calc(100vh - 70px); }
+  
+  .content-header { 
+    padding: 10px 20px; 
+    height: auto; 
+    flex-wrap: wrap; 
+    gap: 12px;
+  }
+  
+  .header-search { width: 100%; order: 2; }
+  .header-profile { order: 1; margin-left: auto; }
+  
   .scroll-area { padding: 20px; }
+  .stats-section { grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card-premium { padding: 16px; gap: 12px; flex-direction: column; align-items: flex-start; text-align: left; }
+  
+  .content-toolbar { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .toolbar-right { width: 100%; justify-content: space-between; }
+  
+  .table-glass { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table-glass table { min-width: 600px; }
+  
+  .modal-card { padding: 24px; margin: 16px; max-height: 85vh; overflow-y: auto; }
+  .scanner-container { padding: 20px; margin: 16px; }
+  .input-row { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 480px) {
+  .stat-card-premium { flex-direction: row; align-items: center; }
+  .stat-icon-box { width: 40px; height: 40px; }
+  .stat-icon-box svg { width: 18px; height: 18px; }
+  .stat-text .value { font-size: 1.25rem; }
+}
+
+/* Ultra Small / 200x200 specifically */
+@media (max-width: 250px), (max-height: 250px) {
+  .admin-sidebar { height: 50px; }
+  .sidebar-nav span { display: none !important; }
+  .nav-item { padding: 6px; }
+  .admin-content { margin-bottom: 50px; height: calc(100vh - 50px); }
+  
+  .content-header { padding: 8px; }
+  .header-profile { display: none; }
+  .header-search { padding: 6px 10px; }
+  .header-search svg { display: none; }
+  
+  .scroll-area { padding: 10px; }
+  .stats-section { grid-template-columns: 1fr; gap: 8px; margin-bottom: 16px; }
+  .stat-card-premium { padding: 10px; }
+  .stat-icon-box { display: none; }
+  .stat-text .value { font-size: 1rem; }
+  .stat-text .label { font-size: 0.7rem; }
+  
+  .toolbar-right { flex-direction: column; gap: 8px; align-items: stretch; }
+  .participant-grid { grid-template-columns: 1fr; }
+  .modal-card { padding: 16px; }
+  .input-row { grid-template-columns: 1fr; gap: 10px; }
+}
+
 /* ========================
    PREMIUM PUBLIC TICKET V2
 ======================== */
