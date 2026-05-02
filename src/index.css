@@ -1398,100 +1398,159 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 768px) {
-  .admin-layout { flex-direction: column; }
-  
-  .admin-sidebar { 
-    width: 100%; 
-    height: 70px; 
-    padding: 0; 
-    flex-direction: row; 
-    position: fixed; 
-    bottom: 0; 
-    left: 0; 
-    z-index: 100; 
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+  .admin-layout {
+    flex-direction: column;
+    overflow: hidden;
+    height: 100vh;
+    background-color: var(--admin-bg) !important;
   }
-  
+
+  .admin-sidebar {
+    width: 100%;
+    height: 64px;
+    padding: 0;
+    flex-direction: row;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+    background: var(--admin-sidebar-bg) !important;
+  }
+
   .sidebar-brand, .sidebar-coach-info { display: none; }
-  
-  .sidebar-nav { 
-    flex-direction: row; 
-    justify-content: space-around; 
+
+  .sidebar-nav {
+    flex-direction: row;
+    justify-content: space-around;
     align-items: center;
-    width: 100%; 
-    padding: 0 10px;
+    width: 100%;
+    padding: 0 8px;
+    gap: 0;
   }
-  
-  .nav-item { 
-    flex-direction: column; 
-    padding: 8px 12px; 
-    gap: 4px;
+
+  .nav-item {
+    flex-direction: column;
+    padding: 8px 10px;
+    gap: 2px;
     border-radius: 8px;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.6);
   }
-  
-  .sidebar-nav span { 
-    display: block !important; 
-    font-size: 0.65rem; 
+
+  .nav-item.active {
+    color: white;
+    background: rgba(255,255,255,0.1);
+  }
+
+  .nav-item svg { width: 18px; height: 18px; }
+
+  .sidebar-nav span {
+    display: block !important;
+    font-size: 0.6rem;
     font-weight: 700;
   }
-  
-  .admin-content { margin-bottom: 70px; height: calc(100vh - 70px); }
-  
-  .content-header { 
-    padding: 10px 20px; 
-    height: auto; 
-    flex-wrap: wrap; 
-    gap: 12px;
+
+  .admin-content {
+    flex: 1;
+    margin-bottom: 64px;
+    height: calc(100vh - 64px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: var(--admin-bg) !important;
   }
-  
-  .header-search { width: 100%; order: 2; }
-  .header-profile { order: 1; margin-left: auto; }
-  
-  .scroll-area { padding: 20px; }
-  .stats-section { grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
-  .stat-card-premium { padding: 16px; gap: 12px; flex-direction: column; align-items: flex-start; text-align: left; }
-  
-  .content-toolbar { flex-direction: column; align-items: flex-start; gap: 16px; }
+
+  .content-header {
+    padding: 12px 16px;
+    height: auto;
+    flex-wrap: nowrap;
+    gap: 10px;
+    background: white !important;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .header-search { flex: 1; width: auto; padding: 8px 12px; border-radius: 10px; }
+  .header-profile { margin-left: auto; font-size: 0.8rem; gap: 8px; }
+  .header-profile span { display: none; }
+
+  .scroll-area { 
+    flex: 1;
+    padding: 16px; 
+    overflow-y: auto; 
+    background: var(--admin-bg) !important;
+  }
+
+  .stats-section {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card-premium {
+    padding: 14px;
+    gap: 10px;
+    border-radius: 14px;
+    background: white !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  }
+
+  .content-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .toolbar-left h3 { font-size: 1rem; }
   .toolbar-right { width: 100%; justify-content: space-between; }
-  
-  .table-glass { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .table-glass table { min-width: 600px; }
-  
-  .modal-card { padding: 24px; margin: 16px; max-height: 85vh; overflow-y: auto; }
-  .scanner-container { padding: 20px; margin: 16px; }
-  .input-row { grid-template-columns: 1fr; }
+
+  .table-glass {
+    overflow-x: auto;
+    background: white !important;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  }
+
+  .table-glass table { min-width: 500px; }
+  .table-glass th { padding: 12px 16px; background: #f8fafc !important; font-size: 0.75rem; }
+  .table-glass td { padding: 12px 16px; background: white !important; font-size: 0.8rem; }
+
+  .participant-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .user-card-premium { background: white !important; padding: 16px; border-radius: 14px; }
+
+  .modal-overlay-glass { padding: 16px; z-index: 2000; }
+  .modal-card { padding: 20px; max-height: 80vh; border-radius: 20px; }
 }
 
-@media (max-width: 480px) {
-  .stat-card-premium { flex-direction: row; align-items: center; }
-  .stat-icon-box { width: 40px; height: 40px; }
-  .stat-icon-box svg { width: 18px; height: 18px; }
-  .stat-text .value { font-size: 1.25rem; }
-}
-
-/* Ultra Small / 200x200 specifically */
-@media (max-width: 250px), (max-height: 250px) {
+/* Ultra Small / 220x300 specifically */
+@media (max-width: 320px) {
   .admin-sidebar { height: 50px; }
+  .nav-item { padding: 4px 8px; }
+  .nav-item svg { width: 16px; height: 16px; }
   .sidebar-nav span { display: none !important; }
-  .nav-item { padding: 6px; }
+
   .admin-content { margin-bottom: 50px; height: calc(100vh - 50px); }
-  
   .content-header { padding: 8px; }
-  .header-profile { display: none; }
   .header-search { padding: 6px 10px; }
-  .header-search svg { display: none; }
   
   .scroll-area { padding: 10px; }
-  .stats-section { grid-template-columns: 1fr; gap: 8px; margin-bottom: 16px; }
+  .stats-section { grid-template-columns: 1fr; gap: 8px; }
   .stat-card-premium { padding: 10px; }
-  .stat-icon-box { display: none; }
+  .stat-icon-box { width: 32px; height: 32px; }
   .stat-text .value { font-size: 1rem; }
-  .stat-text .label { font-size: 0.7rem; }
   
-  .toolbar-right { flex-direction: column; gap: 8px; align-items: stretch; }
-  .participant-grid { grid-template-columns: 1fr; }
-  .modal-card { padding: 16px; }
-  .input-row { grid-template-columns: 1fr; gap: 10px; }
+  .content-toolbar h3 { font-size: 0.9rem; }
+  .toolbar-right { flex-direction: column; align-items: stretch; gap: 8px; }
+  .btn-action-outline { padding: 6px 10px; font-size: 0.75rem; justify-content: center; }
+
+  .table-glass table { min-width: 400px; }
+}
+
+@media (max-height: 400px) {
+  .stats-section { display: none; }
+  .content-header { display: none; }
+  .admin-content { height: calc(100vh - 50px); margin-bottom: 50px; }
 }
 
 /* ========================

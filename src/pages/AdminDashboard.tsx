@@ -29,7 +29,6 @@ import {
 import { supabase } from '../supabaseClient';
 import { formatTicketCode } from '../utils';
 import { Participant } from '../types';
-import { motion } from 'framer-motion';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const AdminDashboard: React.FC = () => {
@@ -264,8 +263,8 @@ const AdminDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredParticipants.map(p => (
-                      <tr key={p.id}>
+                    {filteredParticipants.map((p, index) => (
+                      <tr key={p.id || `p-${index}`}>
                         <td>
                           <div className="cell-user">
                             <div className="avatar-mini">{p.nama_lengkap.charAt(0)}</div>
@@ -301,8 +300,8 @@ const AdminDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="participant-grid">
-                {filteredParticipants.map(p => (
-                  <div key={p.id} className="user-card-premium">
+                {filteredParticipants.map((p, index) => (
+                  <div key={p.id || `g-${index}`} className="user-card-premium">
                     <div className="card-top">
                       <div className="card-avatar">{p.nama_lengkap.charAt(0)}</div>
                       <div className="card-status-dot" style={{ background: p.validasi_bayar === 'SUDAH' ? '#10b981' : '#f59e0b' }}></div>
