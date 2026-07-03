@@ -219,12 +219,12 @@ const PublicTicket: React.FC = () => {
                 <Barcode 
                   value={participant.barcode} 
                   format="CODE128" 
-                  width={1.2} 
-                  height={40} 
+                  width={2} 
+                  height={60} 
                   displayValue={false}
                   background="transparent" 
                 />
-                <div className="b-code">{participant.barcode}</div>
+                <div className="b-code" style={{ fontSize: '1.2rem', marginTop: '5px', fontWeight: 'bold' }}>{participant.barcode}</div>
               </div>
             </div>
           </div>
@@ -245,7 +245,7 @@ const PublicTicket: React.FC = () => {
             {isDownloading ? <div className="loading-spinner" style={{ width: '16px', height: '16px', margin: 0 }}></div> : <Download size={18} />}
             Unduh Versi PDF
           </button>
-          {participant.validasi_bayar === 'Approved' ? (
+          {participant.validasi_bayar === 'SUDAH' ? (
             <div className="status-badge success">
               <ShieldCheck size={18} /> Pembayaran Terverifikasi
             </div>

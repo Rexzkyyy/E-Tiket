@@ -100,9 +100,10 @@ const AdminDashboard: React.FC = () => {
     if (editingParticipant) {
       result = await supabase.from('participants').update(data).eq('barcode', editingParticipant.barcode);
     } else {
+      const generatedBarcode = Math.floor(100000 + Math.random() * 900000).toString();
       result = await supabase.from('participants').insert([{ 
         ...data, 
-        barcode: formData.get('barcode') as string || Math.floor(Math.random() * 1000000000).toString(), 
+        barcode: generatedBarcode, 
         status_absen: 'BELUM' 
       }]);
     }
@@ -441,12 +442,7 @@ const AdminDashboard: React.FC = () => {
                   <label>Nomor WhatsApp</label>
                   <input name="whatsapp" defaultValue={editingParticipant?.whatsapp} required placeholder="Contoh: 0812345678" />
                 </div>
-                {!editingParticipant && (
-                  <div className="input-group">
-                    <label>Barcode / Kode Unik</label>
-                    <input name="barcode" required placeholder="Generate otomatis jika kosong" />
-                  </div>
-                )}
+
                 <div className="input-row">
                   <div className="input-group">
                     <label>Kategori Tiket</label>
