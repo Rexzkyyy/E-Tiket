@@ -1592,6 +1592,53 @@ tbody tr:last-child td {
 .toast-notification.success { border-left: 4px solid #10b981; }
 .toast-notification.error { border-left: 4px solid #ef4444; }
 
+/* Pagination Container */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 30px;
+  padding-bottom: 20px;
+}
+
+.btn-pagination {
+  background: white;
+  color: var(--admin-primary);
+  border: 1px solid #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+.btn-pagination:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f8fafc;
+  color: #94a3b8;
+}
+
+.btn-pagination:not(:disabled):hover {
+  background: var(--admin-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(190, 24, 93, 0.2);
+}
+
+.pagination-info {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+}
+
+.pagination-info span {
+  color: var(--admin-primary);
+  font-weight: 800;
+}
+
 /* Responsive Dashboard */
 @media (max-width: 1024px) {
   .admin-sidebar { width: 80px; padding: 20px 10px; }
@@ -1720,20 +1767,24 @@ tbody tr:last-child td {
 
   .content-toolbar {
     flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    margin-bottom: 16px;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
   }
 
-  .toolbar-left h3 { font-size: 1rem; }
-  .toolbar-right { width: 100%; justify-content: space-between; }
+  .toolbar-left h3 { font-size: 1.25rem; }
+  .toolbar-right { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+  
+  .btn-action-outline { padding: 8px 12px; font-size: 0.85rem; }
   /* CRITICAL: Force light background on all content elements */
   .table-glass {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     background: white !important;
     border-radius: 12px;
     box-shadow: none !important;
     border: 1px solid #e2e8f0;
+    width: 100%;
   }
 
   .table-glass table { 

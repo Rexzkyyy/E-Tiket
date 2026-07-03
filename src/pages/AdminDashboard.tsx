@@ -77,7 +77,8 @@ const AdminDashboard: React.FC = () => {
         whatsapp: row['WhatsApp'] || row['Nomor HP'],
         jenis_tiket: row['Jenis Tiket'] || row['Kategori'] || 'VIP GOLD 200K',
         validasi_bayar: 'BELUM',
-        status_absen: 'BELUM'
+        status_absen: 'BELUM',
+        status_wa: 'BELUM'
       }));
 
       await supabase.from('participants').insert(mapped);
@@ -104,7 +105,8 @@ const AdminDashboard: React.FC = () => {
       result = await supabase.from('participants').insert([{ 
         ...data, 
         barcode: generatedBarcode, 
-        status_absen: 'BELUM' 
+        status_absen: 'BELUM',
+        status_wa: 'BELUM'
       }]);
     }
 
@@ -147,11 +149,14 @@ const AdminDashboard: React.FC = () => {
     }
   }, [fetchParticipants]);
 
-  const sendWhatsApp = useCallback((p: Participant) => {
+  const sendWhatsApp = useCallback(async (p: Participant) => {
     const ticketUrl = `${window.location.origin}/t/${p.barcode}`;
     const message = `Halo *${p.nama_lengkap}*,\n\nTerima kasih telah mendaftar. Berikut adalah E-Tiket Anda:\n\n*Nomor Tiket:* ${formatTicketCode(p.barcode)}\n*Jenis Tiket:* ${p.jenis_tiket}\n\n*Lihat E-Tiket Resmi:* \n${ticketUrl}\n\nMohon tunjukkan barcode di link tersebut kepada panitia saat registrasi ulang. Sampai jumpa di acara Jeda Sejenak Menguatkan Hati!`;
     window.open(`https://wa.me/${p.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
-  }, []);
+    
+    await supabase.from('participants').update({ status_wa: 'SUDAH' }).eq('barcode', p.barcode);
+    fetchParticipants();
+  }, [fetchParticipants]);
 
   const startScanner = useCallback(() => {
     setShowScanner(true);
@@ -275,14 +280,14 @@ const AdminDashboard: React.FC = () => {
             <div className="stat-card-premium gold">
               <div className="stat-icon-box"><Clock /></div>
               <div className="stat-text">
-                <span className="label">Pending</span>
+                <span className="label">Belum Lunas</span>
                 <span className="value">{stats.pending}</span>
               </div>
             </div>
             <div className="stat-card-premium purple">
               <div className="stat-icon-box"><History /></div>
               <div className="stat-text">
-                <span className="label">Check-in</span>
+                <span className="label">Sudah Hadir</span>
                 <span className="value">{stats.attended}</span>
               </div>
             </div>
@@ -324,8 +329,9 @@ const AdminDashboard: React.FC = () => {
                     <tr>
                       <th>Nama Peserta</th>
                       <th>Kategori</th>
-                      <th>Status</th>
-                      <th>Check-in</th>
+                      <th>Status Bayar</th>
+                      <th>Status Hadir</th>
+                      <th>Status WA</th>
                       <th>Aksi</th>
                     </tr>
                   </thead>
@@ -344,12 +350,17 @@ const AdminDashboard: React.FC = () => {
                         <td><span className="category-tag">{p.jenis_tiket}</span></td>
                         <td>
                           <span className={`status-tag ${p.validasi_bayar === 'SUDAH' ? 'approved' : 'pending'}`}>
-                            {p.validasi_bayar === 'SUDAH' ? 'Approved' : 'Pending'}
+                            {p.validasi_bayar === 'SUDAH' ? 'Lunas' : 'Belum Lunas'}
                           </span>
                         </td>
                         <td>
                           <span className={`status-tag ${p.status_absen === 'SUDAH' ? 'attended' : 'not-yet'}`}>
-                            {p.status_absen === 'SUDAH' ? 'Attended' : 'Not Yet'}
+                            {p.status_absen === 'SUDAH' ? 'Sudah' : 'Belum'}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`status-tag ${p.status_wa === 'SUDAH' ? 'attended' : 'not-yet'}`}>
+                            {p.status_wa === 'SUDAH' ? 'Terkirim' : 'Belum'}
                           </span>
                         </td>
                          <td>
@@ -363,7 +374,7 @@ const AdminDashboard: React.FC = () => {
                                 <CheckCircle size={14} />
                               </button>
                             )}
-                            <button className="action-circle wa" onClick={() => sendWhatsApp(p)} title="Kirim WA"><MessageCircle size={14} /></button>
+                            <button className={`action-circle wa ${p.status_wa === 'SUDAH' ? 'sent' : ''}`} onClick={() => sendWhatsApp(p)} title={p.status_wa === 'SUDAH' ? 'Kirim Ulang WA' : 'Kirim WA'}><MessageCircle size={14} /></button>
                             <button className="action-circle edit" onClick={() => { setEditingParticipant(p); setShowAddModal(true); }} title="Edit Data"><Edit size={14} /></button>
                             <button className="action-circle view" onClick={() => window.open(`/t/${p.barcode}`, '_blank')} title="Lihat Tiket"><ExternalLink size={14} /></button>
                             <button className="action-circle delete" onClick={() => deleteParticipant(p.barcode)} title="Hapus Data"><Trash2 size={14} /></button>
@@ -389,9 +400,11 @@ const AdminDashboard: React.FC = () => {
                     </div>
                      <div className="card-actions">
                       {p.validasi_bayar === 'BELUM' && (
-                        <button onClick={() => updateParticipantStatus(p.barcode, 'SUDAH')} className="verify">Verify</button>
+                        <button onClick={() => updateParticipantStatus(p.barcode, 'SUDAH')} className="verify">Verifikasi</button>
                       )}
-                      <button onClick={() => sendWhatsApp(p)} className="wa">WhatsApp</button>
+                      <button onClick={() => sendWhatsApp(p)} className="wa">
+                        {p.status_wa === 'SUDAH' ? 'Kirim Ulang WA' : 'Kirim WA'}
+                      </button>
                       <button onClick={() => { setEditingParticipant(p); setShowAddModal(true); }}>Edit</button>
                     </div>
                   </div>
