@@ -34,3 +34,8 @@ lerna-debug.log*
 
 # TypeScript
 *.tsbuildinfo
+
+# Large asset files/folders
+*.zip
+public/New Teh Inan/
+

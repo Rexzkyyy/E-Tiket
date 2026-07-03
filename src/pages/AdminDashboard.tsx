@@ -148,7 +148,7 @@ const AdminDashboard: React.FC = () => {
 
   const sendWhatsApp = useCallback((p: Participant) => {
     const ticketUrl = `${window.location.origin}/t/${p.barcode}`;
-    const message = `Halo *${p.nama_lengkap}*,\n\nTerima kasih telah mendaftar. Berikut adalah E-Tiket Anda:\n\n*Nomor Tiket:* ${formatTicketCode(p.barcode)}\n*Jenis Tiket:* ${p.jenis_tiket}\n\n*Lihat E-Tiket Resmi:* \n${ticketUrl}\n\nMohon tunjukkan barcode di link tersebut kepada panitia saat registrasi ulang. Sampai jumpa!`;
+    const message = `Halo *${p.nama_lengkap}*,\n\nTerima kasih telah mendaftar. Berikut adalah E-Tiket Anda:\n\n*Nomor Tiket:* ${formatTicketCode(p.barcode)}\n*Jenis Tiket:* ${p.jenis_tiket}\n\n*Lihat E-Tiket Resmi:* \n${ticketUrl}\n\nMohon tunjukkan barcode di link tersebut kepada panitia saat registrasi ulang. Sampai jumpa di acara Jeda Sejenak Menguatkan Hati!`;
     window.open(`https://wa.me/${p.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
   }, []);
 
@@ -203,7 +203,7 @@ const AdminDashboard: React.FC = () => {
       <aside className="admin-sidebar">
         <div className="sidebar-brand-premium">
           <div className="avatar-wrapper desktop-only">
-            <img src="/coach zul3.png" alt="Coach Zul" className="avatar-img" />
+            <img src="/teh-inan-portrait.jpg" alt="Teh Inan" className="avatar-img" />
             <div className="avatar-overlay"></div>
           </div>
           <div className="logo-wrapper">
@@ -228,8 +228,8 @@ const AdminDashboard: React.FC = () => {
         </nav>
 
         <div className="sidebar-coach-info">
-          <p>"Menemukan Diri, Menata Hati"</p>
-          <span>Jalan Pulang 2026</span>
+          <p>"Jeda Sejenak, Menguatkan Hati"</p>
+          <span>Jeda Sejenak 2026</span>
         </div>
       </aside>
 

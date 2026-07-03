@@ -130,12 +130,12 @@ const PublicTicket: React.FC = () => {
       <header className="public-hero">
         <div className="hero-content">
           <div className="coach-badge">
-            <img src="/coach zul3.png" alt="Coach Zul" />
+            <img src="/teh-inan-speaking.png" alt="Ghinan Rhinda" />
           </div>
           <div className="hero-text">
-            <span className="event-date">11 JULI 2026 • HOTEL ZAHRA</span>
-            <h1>JALAN PULANG</h1>
-            <p>Bersama Coach Zulkifli Bilondatu</p>
+            <span className="event-date">1 AGUSTUS 2026 • HOTEL ZAHRA</span>
+            <h1>JEDA SEJENAK</h1>
+            <p>Bersama Ghinan Rhinda, S.Sos., CH., CHt., CSHP., CMHFA</p>
           </div>
         </div>
       </header>
@@ -149,13 +149,13 @@ const PublicTicket: React.FC = () => {
         <div ref={ticketRef} className="ultimate-hybrid-ticket">
           {/* UNIFIED DARK HEADER */}
           <div className="unified-ticket-header">
-            OFFICIAL E-TICKET • JALAN PULANG 2026
+            OFFICIAL E-TICKET • JEDA SEJENAK MENGUATKAN HATI 2026
           </div>
 
           <div className="ticket-main-content">
             {/* Left Side: Visual Flyer */}
             <div className="visual-flyer-side">
-              <img src="/tiket.jpeg" alt="Event Flyer" className="flyer-img" />
+              <img src="/poster-jeda-sejenak.png" alt="Event Flyer" className="flyer-img" />
             </div>
 
             {/* Right Side: THE EXACT PORTRAIT STUB */}
@@ -173,8 +173,8 @@ const PublicTicket: React.FC = () => {
 
               {/* Title & Tagline */}
               <div className="stub-titles">
-                <h2 className="title-serif">Jalan Pulang</h2>
-                <p className="tagline-italic">"Tempat Kamu Bisa Jujur Tanpa Dihakimi"</p>
+                <h2 className="title-serif">Jeda Sejenak</h2>
+                <p className="tagline-italic">"Sesi Curhat, Sharing, Healing, Doa dan Muhasabah"</p>
               </div>
 
               {/* Divider with X */}
@@ -188,11 +188,11 @@ const PublicTicket: React.FC = () => {
               <div className="stub-info-grid">
                 <div className="s-row">
                   <span className="s-label">HARI/TGL</span>
-                  <span className="s-val">Sabtu, 11 Juli 2026</span>
+                  <span className="s-val">Sabtu, 1 Agustus 2026</span>
                 </div>
                 <div className="s-row">
                   <span className="s-label">WAKTU</span>
-                  <span className="s-val">08.00 - 11.00</span>
+                  <span className="s-val">08.00 - 11.30</span>
                 </div>
                 <div className="s-row">
                   <span className="s-label">LOKASI</span>
@@ -231,7 +231,7 @@ const PublicTicket: React.FC = () => {
 
           {/* UNIFIED DARK FOOTER */}
           <div className="unified-ticket-footer">
-            TIKET INI HANYA BERLAKU UNTUK 1 (SATU) ORANG • TUNJUKKAN BARCODE KEPADA PETUGAS SAAT MEMASUKI LOKASI
+            TIKET INI HANYA BERLAKU UNTUK 1 (SATU) ORANG • TUNJUKKAN BARCODE KEPADA PETUGAS SAAT MEMASUKI LOKASI • SPESIAL MUSLIMAH
           </div>
         </div>
 
@@ -258,7 +258,7 @@ const PublicTicket: React.FC = () => {
       </motion.div>
       
       <footer className="public-footer">
-        <p>© 2026 Ruang Tenang. All rights reserved.</p>
+        <p>© 2026 Ruang Tenang & Rumah Pelangi. All rights reserved.</p>
       </footer>
     </div>
   );

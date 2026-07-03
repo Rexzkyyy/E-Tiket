@@ -10,16 +10,16 @@
 }
 
 :root {
-  --primary: #4f46e5;
-  --primary-dark: #4338ca;
-  --secondary: #0ea5e9;
-  --accent: #8b5cf6;
+  --primary: #e91e8c;
+  --primary-dark: #be185d;
+  --secondary: #f472b6;
+  --accent: #ec4899;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
-  --bg: #0a0f1d;
-  --surface: #111827;
-  --card: #1a2235;
+  --bg: #1a0a12;
+  --surface: #1f0d15;
+  --card: #2a1520;
   --border: rgba(255, 255, 255, 0.07);
   --text: #f9fafb;
   --text-muted: #9ca3af;
@@ -40,8 +40,8 @@ body,
 
 body {
   background-image:
-    radial-gradient(ellipse at 0% 0%, rgba(79, 70, 229, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 100% 0%, rgba(14, 165, 233, 0.06) 0%, transparent 50%);
+    radial-gradient(ellipse at 0% 0%, rgba(233, 30, 140, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 0%, rgba(244, 114, 182, 0.06) 0%, transparent 50%);
   background-attachment: fixed;
 }
 
@@ -125,25 +125,25 @@ body {
 .btn-primary {
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 4px 12px rgba(233, 30, 140, 0.3);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--primary-dark);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 6px 20px rgba(233, 30, 140, 0.4);
 }
 
 .btn-secondary {
   background: var(--secondary);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 4px 12px rgba(244, 114, 182, 0.3);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #0284c7;
+  background: #db2777;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+  box-shadow: 0 6px 20px rgba(244, 114, 182, 0.4);
 }
 
 .btn-ghost {
@@ -158,9 +158,9 @@ body {
 }
 
 .btn-ghost.active {
-  background: rgba(79, 70, 229, 0.12);
-  color: #818cf8;
-  border-color: rgba(79, 70, 229, 0.25);
+  background: rgba(233, 30, 140, 0.12);
+  color: #f472b6;
+  border-color: rgba(233, 30, 140, 0.25);
 }
 
 .btn-danger {
@@ -251,8 +251,8 @@ body {
 }
 
 .stat-icon.blue {
-  background: rgba(79, 70, 229, 0.12);
-  color: #818cf8;
+  background: rgba(233, 30, 140, 0.12);
+  color: #f472b6;
 }
 
 .stat-icon.green {
@@ -262,12 +262,12 @@ body {
 
 .stat-icon.yellow {
   background: rgba(245, 158, 11, 0.12);
-  color: #fbbf24;
+  color: #fce7f3;
 }
 
 .stat-icon.purple {
-  background: rgba(168, 85, 247, 0.12);
-  color: #c084fc;
+  background: rgba(236, 72, 153, 0.12);
+  color: #f9a8d4;
 }
 
 .stat-label {
@@ -469,7 +469,7 @@ tbody tr:last-child td {
 
 .pill.pending {
   background: rgba(245, 158, 11, 0.12);
-  color: #fbbf24;
+  color: #fce7f3;
 }
 
 .pill.approved {
@@ -478,8 +478,8 @@ tbody tr:last-child td {
 }
 
 .pill.attended {
-  background: rgba(99, 102, 241, 0.12);
-  color: #818cf8;
+  background: rgba(236, 72, 153, 0.12);
+  color: #f9a8d4;
 }
 
 .pill.rejected {
@@ -542,12 +542,12 @@ tbody tr:last-child td {
   overflow: hidden;
   position: relative;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-  border: 10px solid #063162;
+  border: 10px solid #9d174d;
   color: #1e293b;
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-left: 20px solid #063162;
+  border-left: 20px solid #9d174d;
 }
 
 .premium-ticket::before {
@@ -562,8 +562,8 @@ tbody tr:last-child td {
 }
 
 .ticket-header-banner {
-  background: #063162;
-  color: #fbbf24;
+  background: #9d174d;
+  color: #fce7f3;
   padding: 8px 40px;
   border-radius: 99px;
   font-weight: 800;
@@ -585,7 +585,7 @@ tbody tr:last-child td {
 .ticket-main-title {
   font-family: 'Playfair Display', serif;
   font-size: 2.4rem;
-  color: #063162;
+  color: #9d174d;
   margin-bottom: 4px;
 }
 
@@ -644,8 +644,8 @@ tbody tr:last-child td {
 }
 
 .ticket-number-box {
-  background: #e9f39f;
-  border: 1px solid #063162;
+  background: #fce7f3;
+  border: 1px solid #9d174d;
   border-radius: 12px;
   display: flex;
   margin: 24px 32px 16px;
@@ -655,8 +655,8 @@ tbody tr:last-child td {
 .ticket-number-label {
   padding: 10px 15px;
   font-weight: 800;
-  color: #063162;
-  border-right: 2px dashed #063162;
+  color: #9d174d;
+  border-right: 2px dashed #9d174d;
 }
 
 .ticket-number-value {
@@ -664,14 +664,14 @@ tbody tr:last-child td {
   padding: 10px;
   font-size: 1.6rem;
   font-weight: 800;
-  color: #063162;
+  color: #9d174d;
   letter-spacing: 0.2em;
 }
 
 .ticket-footer-dark {
-  background: #063162;
+  background: #9d174d;
   padding: 16px;
-  color: #fbbf24;
+  color: #fce7f3;
   font-size: 0.7rem;
   text-align: center;
   line-height: 1.4;
@@ -719,7 +719,7 @@ tbody tr:last-child td {
   }
 
   .premium-ticket {
-    border: 10px solid #063162 !important;
+    border: 10px solid #9d174d !important;
     box-shadow: none;
     width: 450px;
     margin: 0 auto;
@@ -727,7 +727,7 @@ tbody tr:last-child td {
   }
 
   .ticket-footer-dark {
-    background: #063162 !important;
+    background: #9d174d !important;
     -webkit-print-color-adjust: exact;
   }
 }
@@ -811,12 +811,12 @@ tbody tr:last-child td {
    PREMIUM ADMIN DASHBOARD V2
 ======================== */
 :root {
-  --admin-primary: #4338ca; /* Vibrant Indigo instead of dark navy */
-  --admin-accent: #6366f1;
-  --admin-accent-glow: rgba(99, 102, 241, 0.5);
-  --admin-bg: #f8fafc;
+  --admin-primary: #be185d; /* Deep Rose */
+  --admin-accent: #ec4899;
+  --admin-accent-glow: rgba(236, 72, 153, 0.5);
+  --admin-bg: #fdf2f8;
   --admin-card-bg: rgba(255, 255, 255, 0.9);
-  --admin-sidebar-bg: #1e1b4b; /* Deep Indigo for sidebar */
+  --admin-sidebar-bg: #4a0d2e; /* Deep Maroon/Rose */
   --admin-text-main: #0f172a;
   --admin-text-muted: #64748b;
   --glass-bg: rgba(255, 255, 255, 0.8);
@@ -826,9 +826,9 @@ tbody tr:last-child td {
 .admin-layout {
   display: flex;
   height: 100vh;
-  background: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
-              radial-gradient(at 100% 0%, rgba(147, 51, 234, 0.05) 0px, transparent 50%);
-  background-color: #f8fafc;
+  background: radial-gradient(at 0% 0%, rgba(236, 72, 153, 0.05) 0px, transparent 50%),
+              radial-gradient(at 100% 0%, rgba(190, 24, 93, 0.05) 0px, transparent 50%);
+  background-color: #fdf2f8;
   font-family: 'Plus Jakarta Sans', sans-serif;
   overflow: hidden;
   position: relative;
@@ -977,9 +977,9 @@ tbody tr:last-child td {
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, var(--admin-accent), #2563eb);
+  background: linear-gradient(135deg, var(--admin-accent), #db2777);
   color: white;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
 }
 
 .sidebar-coach-info {
@@ -1037,7 +1037,7 @@ tbody tr:last-child td {
 
 .header-search:focus-within {
   border-color: var(--admin-accent);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.1);
   transform: translateY(-1px);
 }
 
@@ -1065,7 +1065,7 @@ tbody tr:last-child td {
 .admin-avatar {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #0f172a, #334155);
+  background: linear-gradient(135deg, #4a0d2e, #831843);
   color: white;
   border-radius: 16px;
   display: flex;
@@ -1106,10 +1106,10 @@ tbody tr:last-child td {
   border-color: var(--admin-accent);
 }
 
-.stat-card-premium.blue { background: #4338ca; border: none; color: white; }
+.stat-card-premium.blue { background: #be185d; border: none; color: white; }
 .stat-card-premium.green { background: #10b981; border: none; color: white; }
 .stat-card-premium.gold { background: #f59e0b; border: none; color: white; }
-.stat-card-premium.purple { background: #8b5cf6; border: none; color: white; }
+.stat-card-premium.purple { background: #ec4899; border: none; color: white; }
 
 .stat-icon-box {
   width: 64px;
@@ -1121,10 +1121,10 @@ tbody tr:last-child td {
   box-shadow: 0 8px 15px rgba(0,0,0,0.05);
 }
 
-.stat-card-premium.blue .stat-icon-box { background: white; color: #3b82f6; }
+.stat-card-premium.blue .stat-icon-box { background: white; color: #be185d; }
 .stat-card-premium.green .stat-icon-box { background: white; color: #10b981; }
 .stat-card-premium.gold .stat-icon-box { background: white; color: #f59e0b; }
-.stat-card-premium.purple .stat-icon-box { background: white; color: #8b5cf6; }
+.stat-card-premium.purple .stat-icon-box { background: white; color: #ec4899; }
 
 .stat-text .label {
   display: block;
@@ -1285,13 +1285,13 @@ tbody tr:last-child td {
 }
 
 .category-tag {
-  background: #f0f9ff;
-  color: #0369a1;
+  background: #fdf2f8;
+  color: #9d174d;
   padding: 6px 14px;
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 800;
-  border: 1px solid #e0f2fe;
+  border: 1px solid #fce7f3;
 }
 
 .status-tag {
@@ -1303,7 +1303,7 @@ tbody tr:last-child td {
 
 .status-tag.approved { background: #dcfce7; color: #166534; }
 .status-tag.pending { background: #fef3c7; color: #92400e; }
-.status-tag.attended { background: #f3e8ff; color: #6b21a8; }
+.status-tag.attended { background: #fce7f3; color: #9d174d; }
 .status-tag.not-yet { background: #f1f5f9; color: #475569; }
 
 .row-actions {
@@ -1327,7 +1327,7 @@ tbody tr:last-child td {
 .action-circle.success { color: #10b981; background: #dcfce7; }
 .action-circle.wa { color: #22c55e; background: #f0fdf4; }
 .action-circle.edit { color: #3b82f6; background: #eff6ff; }
-.action-circle.view { color: #6366f1; background: #eef2ff; }
+.action-circle.view { color: #ec4899; background: #fdf2f8; }
 .action-circle.delete { color: #ef4444; background: #fef2f2; }
 
 .action-circle:hover {
@@ -1450,7 +1450,7 @@ tbody tr:last-child td {
 .modal-overlay-glass {
   position: fixed;
   inset: 0;
-  background: rgba(30, 27, 75, 0.6); /* Indigo-based overlay */
+  background: rgba(74, 13, 46, 0.6); /* Rose-based overlay */
   backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
@@ -1530,7 +1530,7 @@ tbody tr:last-child td {
 .input-group input:focus {
   background: white;
   border-color: var(--admin-accent);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
 }
 
 .input-row {
@@ -1540,13 +1540,13 @@ tbody tr:last-child td {
 }
 
 .submit-btn {
-  background: linear-gradient(135deg, var(--admin-primary), #334155);
+  background: linear-gradient(135deg, var(--admin-primary), #831843);
   color: white;
   padding: 16px;
   border-radius: 18px;
   font-weight: 800;
   margin-top: 10px;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
+  box-shadow: 0 10px 25px rgba(190, 24, 93, 0.2);
 }
 
 /* Scanner Container */
@@ -1578,10 +1578,10 @@ tbody tr:last-child td {
   bottom: 40px;
   right: 40px;
   padding: 18px 28px;
-  background: #1e1b4b; /* Deep Indigo instead of dark navy */
+  background: #4a0d2e; /* Deep Rose */
   color: white;
   border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(67, 56, 202, 0.3);
+  box-shadow: 0 20px 50px rgba(190, 24, 93, 0.3);
   display: flex;
   align-items: center;
   gap: 14px;
@@ -1607,7 +1607,7 @@ tbody tr:last-child td {
     flex-direction: column;
     overflow: hidden;
     height: 100vh;
-    background-color: var(--admin-bg) !important;
+    background-color: #fdf2f8 !important;
   }
 
   .admin-sidebar {
@@ -1619,10 +1619,10 @@ tbody tr:last-child td {
     bottom: 0;
     left: 0;
     z-index: 1000;
-    background: linear-gradient(to right, #4338ca, #6366f1) !important;
+    background: linear-gradient(to right, #be185d, #ec4899) !important;
     backdrop-filter: blur(15px);
     border-top: 1px solid rgba(255,255,255,0.2);
-    box-shadow: 0 -10px 25px rgba(67, 56, 202, 0.2);
+    box-shadow: 0 -10px 25px rgba(190, 24, 93, 0.2);
   }
 
   .sidebar-brand-premium, .sidebar-coach-info, .desktop-only { display: none !important; }
@@ -1681,7 +1681,7 @@ tbody tr:last-child td {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background: var(--admin-bg) !important;
+    background: #fdf2f8 !important;
   }
 
   .content-header {
@@ -1701,7 +1701,7 @@ tbody tr:last-child td {
     flex: 1;
     padding: 16px; 
     overflow-y: auto; 
-    background: var(--admin-bg) !important;
+    background: #fdf2f8 !important;
   }
 
   .stats-section {
@@ -1760,7 +1760,7 @@ tbody tr:last-child td {
 
   /* Prevent dark sidebar bleed if layout has padding */
   .admin-layout, .admin-content, .scroll-area {
-    background: #f8fafc !important; /* Force light background on mobile */
+    background: #fdf2f8 !important; /* Force pink-tinted background on mobile */
   }
 
   .participant-grid { grid-template-columns: 1fr; gap: 16px; }
@@ -1772,13 +1772,13 @@ tbody tr:last-child td {
     box-shadow: 0 8px 24px rgba(0,0,0,0.04) !important;
   }
 
-  .modal-overlay-glass { padding: 16px; z-index: 2000; background: rgba(15, 23, 42, 0.6); }
+  .modal-overlay-glass { padding: 16px; z-index: 2000; background: rgba(74, 13, 46, 0.6); }
   .modal-card { padding: 20px; max-height: 80vh; border-radius: 16px; background: white !important; }
 }
 
 /* Ultra Small / 220x300 specifically */
 @media (max-width: 320px) {
-  .admin-sidebar { height: 50px; background: linear-gradient(to right, #4338ca, #6366f1) !important; }
+  .admin-sidebar { height: 50px; background: linear-gradient(to right, #be185d, #ec4899) !important; }
   .nav-item { padding: 4px 6px; }
   .nav-item svg { width: 16px; height: 16px; }
   .sidebar-nav span { display: none !important; }
@@ -1866,7 +1866,7 @@ tbody tr:last-child td {
   left: 0;
   right: 0;
   padding: 30px;
-  background: linear-gradient(to top, rgba(6, 49, 98, 1), transparent);
+  background: linear-gradient(to top, rgba(157, 23, 77, 1), transparent);
   color: white;
 }
 
@@ -1921,11 +1921,11 @@ tbody tr:last-child td {
 .info-item .v {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #063162;
+  color: #9d174d;
 }
 
 .info-item.highlight .v {
-  color: #0ea5e9;
+  color: #f472b6;
   font-size: 1rem;
 }
 
@@ -1952,7 +1952,7 @@ tbody tr:last-child td {
 .attendee-name {
   font-size: 1.1rem;
   font-weight: 900;
-  color: #063162;
+  color: #9d174d;
   margin-top: 5px;
   line-height: 1.2;
 }
@@ -1969,7 +1969,7 @@ tbody tr:last-child td {
   font-weight: 800;
   font-size: 1.2rem;
   letter-spacing: 0.1em;
-  color: #063162;
+  color: #9d174d;
 }
 
 .ticket-footer-v2 {
@@ -1984,11 +1984,11 @@ tbody tr:last-child td {
 .footer-logo {
   font-size: 1.2rem;
   font-weight: 900;
-  color: #063162;
+  color: #9d174d;
 }
 
 .footer-logo span {
-  color: #0ea5e9;
+  color: #f472b6;
 }
 
 .footer-warning {
@@ -2010,7 +2010,7 @@ tbody tr:last-child td {
 
 .public-hero {
   width: 100%;
-  background: linear-gradient(135deg, #063162 0%, #0c4a8e 100%);
+  background: linear-gradient(135deg, #9d174d 0%, #be185d 100%);
   padding: 60px 20px;
   color: white;
   text-align: center;
@@ -2078,7 +2078,7 @@ tbody tr:last-child td {
 ======================== */
 .public-ticket-page {
   min-height: 100vh;
-  background: #020617; /* Deepest blue base */
+  background: #1a0610; /* Deep rose base */
   position: relative;
   overflow: hidden;
   padding: 40px 20px;
@@ -2094,10 +2094,10 @@ tbody tr:last-child td {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   background: 
-    radial-gradient(at 0% 0%, rgba(6, 49, 98, 0.4) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(30, 64, 175, 0.3) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.2) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(3, 105, 161, 0.3) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(157, 23, 77, 0.4) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(190, 24, 93, 0.3) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.2) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(131, 24, 67, 0.3) 0px, transparent 50%);
   z-index: 1;
 }
 
@@ -2124,8 +2124,8 @@ tbody tr:last-child td {
   animation: auroraFlow 40s infinite alternate ease-in-out;
 }
 
-.bg-aurora-1 { width: 800px; height: 800px; background: #1e40af; top: -200px; left: -100px; }
-.bg-aurora-2 { width: 600px; height: 600px; background: #0ea5e9; bottom: -100px; right: -100px; animation-delay: -20s; }
+.bg-aurora-1 { width: 800px; height: 800px; background: #be185d; top: -200px; left: -100px; }
+.bg-aurora-2 { width: 600px; height: 600px; background: #ec4899; bottom: -100px; right: -100px; animation-delay: -20s; }
 
 @keyframes auroraFlow {
   0% { transform: translate(0, 0) scale(1); }
@@ -2146,8 +2146,8 @@ tbody tr:last-child td {
   display: flex;
   flex-direction: column;
   width: 100%;
-  background: #063162;
-  border: 8px solid #063162;
+  background: #9d174d;
+  border: 8px solid #9d174d;
   border-radius: 28px;
   overflow: hidden;
   box-shadow: 0 30px 80px rgba(0,0,0,0.4);
@@ -2163,7 +2163,7 @@ tbody tr:last-child td {
 
 .visual-flyer-side {
   flex: 3.5;
-  background: #063162;
+  background: #9d174d;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -2187,7 +2187,7 @@ tbody tr:last-child td {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-left: 3px dashed rgba(6, 49, 98, 0.2);
+  border-left: 3px dashed rgba(157, 23, 77, 0.2);
   position: relative;
 }
 
@@ -2199,7 +2199,7 @@ tbody tr:last-child td {
   left: -15px;
   width: 30px;
   height: 30px;
-  background: #020617; /* Matches base BG */
+  background: #1a0610; /* Matches base BG */
   border-radius: 50%;
   z-index: 5;
 }
@@ -2220,7 +2220,7 @@ tbody tr:last-child td {
 
   .official-stub-side {
     border-left: none;
-    border-top: 3px dashed rgba(6, 49, 98, 0.2);
+    border-top: 3px dashed rgba(157, 23, 77, 0.2);
     padding: 35px 20px;
   }
 
@@ -2282,8 +2282,8 @@ tbody tr:last-child td {
 }
 
 .unified-ticket-header {
-  background: #063162;
-  color: #fbbf24;
+  background: #9d174d;
+  color: #fce7f3;
   font-size: 0.75rem;
   font-weight: 800;
   padding: 12px;
@@ -2294,8 +2294,8 @@ tbody tr:last-child td {
 }
 
 .unified-ticket-footer {
-  background: #063162;
-  color: #fbbf24;
+  background: #9d174d;
+  color: #fce7f3;
   font-size: 0.65rem;
   font-weight: 700;
   padding: 12px;
@@ -2305,8 +2305,8 @@ tbody tr:last-child td {
 }
 
 .stub-badge {
-  background: #063162;
-  color: #fbbf24;
+  background: #9d174d;
+  color: #fce7f3;
   padding: 8px 25px;
   border-radius: 99px;
   font-weight: 800;
@@ -2334,13 +2334,13 @@ tbody tr:last-child td {
   transform: scale(1.35); /* Enlarge even more visually */
 }
 
-.logo-text { font-size: 1.2rem; font-weight: 900; color: #063162; }
+.logo-text { font-size: 1.2rem; font-weight: 900; color: #9d174d; }
 .logo-sub { font-size: 0.6rem; color: #94a3b8; }
 
 .title-serif {
   font-family: 'Playfair Display', serif;
   font-size: 1.9rem;
-  color: #063162;
+  color: #9d174d;
   margin-bottom: 2px;
   font-weight: 900;
 }
@@ -2355,12 +2355,12 @@ tbody tr:last-child td {
 
 .s-row { display: flex; font-size: 0.9rem; padding-bottom: 5px; border-bottom: 1px dotted #f1f5f9; }
 .s-label { width: 100px; font-weight: 600; color: #94a3b8; }
-.s-val { font-weight: 800; color: #063162; flex: 1; }
+.s-val { font-weight: 800; color: #9d174d; flex: 1; }
 
 .stub-no-box {
   width: 100%;
-  background: #e9f39f;
-  border: 2px solid #063162;
+  background: #fce7f3;
+  border: 2px solid #9d174d;
   border-radius: 12px;
   display: flex;
   overflow: hidden;
@@ -2370,8 +2370,8 @@ tbody tr:last-child td {
 .stub-no-box .no-label {
   padding: 12px 15px;
   font-weight: 900;
-  color: #063162;
-  border-right: 2px dashed #063162;
+  color: #9d174d;
+  border-right: 2px dashed #9d174d;
   font-size: 0.8rem;
   display: flex;
   align-items: center;
@@ -2382,7 +2382,7 @@ tbody tr:last-child td {
   padding: 10px 15px;
   font-size: 2rem;
   font-weight: 900;
-  color: #063162;
+  color: #9d174d;
   text-align: center;
 }
 
@@ -2397,8 +2397,8 @@ tbody tr:last-child td {
 }
 
 .unified-ticket-header {
-  background: #063162;
-  color: #fbbf24;
+  background: #9d174d;
+  color: #fce7f3;
   font-size: 0.7rem;
   font-weight: 800;
   padding: 10px;
@@ -2409,8 +2409,8 @@ tbody tr:last-child td {
 }
 
 .unified-ticket-footer {
-  background: #063162;
-  color: #fbbf24;
+  background: #9d174d;
+  color: #fce7f3;
   font-size: 0.6rem;
   font-weight: 800;
   padding: 12px;
@@ -2421,8 +2421,8 @@ tbody tr:last-child td {
 
 /* Stub Element Styling */
 .stub-badge {
-  background: #063162;
-  color: #fbbf24;
+  background: #9d174d;
+  color: #fce7f3;
   padding: 6px 20px;
   border-radius: 99px;
   font-weight: 800;
@@ -2430,13 +2430,13 @@ tbody tr:last-child td {
   margin-bottom: 12px;
 }
 
-.logo-text { font-size: 1.1rem; font-weight: 900; color: #063162; }
+.logo-text { font-size: 1.1rem; font-weight: 900; color: #9d174d; }
 .logo-sub { font-size: 0.6rem; color: #94a3b8; }
 
 .title-serif {
   font-family: 'Playfair Display', serif;
   font-size: 1.8rem;
-  color: #063162;
+  color: #9d174d;
   margin-bottom: 2px;
   font-weight: 900;
 }
@@ -2451,12 +2451,12 @@ tbody tr:last-child td {
 
 .s-row { display: flex; font-size: 0.85rem; padding-bottom: 4px; border-bottom: 1px dotted #f1f5f9; }
 .s-label { width: 95px; font-weight: 600; color: #94a3b8; }
-.s-val { font-weight: 800; color: #063162; flex: 1; }
+.s-val { font-weight: 800; color: #9d174d; flex: 1; }
 
 .stub-no-box {
   width: 100%;
-  background: #e9f39f;
-  border: 2px solid #063162;
+  background: #fce7f3;
+  border: 2px solid #9d174d;
   border-radius: 10px;
   display: flex;
   overflow: hidden;
@@ -2466,8 +2466,8 @@ tbody tr:last-child td {
 .stub-no-box .no-label {
   padding: 10px 15px;
   font-weight: 900;
-  color: #063162;
-  border-right: 2px dashed #063162;
+  color: #9d174d;
+  border-right: 2px dashed #9d174d;
   font-size: 0.75rem;
   display: flex;
   align-items: center;
@@ -2478,7 +2478,7 @@ tbody tr:last-child td {
   padding: 8px 15px;
   font-size: 1.8rem;
   font-weight: 900;
-  color: #063162;
+  color: #9d174d;
   text-align: center;
 }
 
@@ -2492,17 +2492,17 @@ tbody tr:last-child td {
   padding-bottom: 15px;
 }
 
-.stub-barcode-footer .b-code { font-size: 0.9rem; font-weight: 700; color: #063162; }
+.stub-barcode-footer .b-code { font-size: 0.9rem; font-weight: 700; color: #9d174d; }
 
-.logo-text { font-size: 1.1rem; font-weight: 900; color: #063162; } /* Increased */
-.logo-text span { color: #0ea5e9; }
+.logo-text { font-size: 1.1rem; font-weight: 900; color: #9d174d; } /* Increased */
+.logo-text span { color: #f472b6; }
 .logo-sub { font-size: 0.6rem; color: #94a3b8; }
 
 .stub-titles { text-align: center; margin-bottom: 12px; }
 .title-serif {
   font-family: 'Playfair Display', serif;
   font-size: 1.8rem; /* Increased */
-  color: #063162;
+  color: #9d174d;
   margin-bottom: 0;
   font-weight: 900;
 }
@@ -2527,12 +2527,12 @@ tbody tr:last-child td {
 
 .s-row { display: flex; font-size: 0.85rem; padding-bottom: 4px; border-bottom: 1px dotted #f1f5f9; } /* Increased font */
 .s-label { width: 95px; font-weight: 600; color: #94a3b8; }
-.s-val { font-weight: 800; color: #063162; flex: 1; }
+.s-val { font-weight: 800; color: #9d174d; flex: 1; }
 
 .stub-no-box {
   width: 100%;
-  background: #e9f39f;
-  border: 1.5px solid #063162; /* Thicker border */
+  background: #fce7f3;
+  border: 1.5px solid #9d174d; /* Thicker border */
   border-radius: 10px;
   display: flex;
   overflow: hidden;
@@ -2542,8 +2542,8 @@ tbody tr:last-child td {
 .stub-no-box .no-label {
   padding: 10px 15px;
   font-weight: 900;
-  color: #063162;
-  border-right: 2px dashed #063162;
+  color: #9d174d;
+  border-right: 2px dashed #9d174d;
   font-size: 0.75rem; /* Increased */
   display: flex;
   align-items: center;
@@ -2554,7 +2554,7 @@ tbody tr:last-child td {
   padding: 8px 15px;
   font-size: 1.8rem; /* Increased */
   font-weight: 900;
-  color: #063162;
+  color: #9d174d;
   text-align: center;
   letter-spacing: 0.05em;
 }
@@ -2569,11 +2569,11 @@ tbody tr:last-child td {
   padding-bottom: 15px;
 }
 
-.stub-barcode-footer .b-code { font-size: 0.9rem; font-weight: 700; color: #063162; } /* Increased */
+.stub-barcode-footer .b-code { font-size: 0.9rem; font-weight: 700; color: #9d174d; } /* Increased */
 
 .unified-ticket-header {
-  background: #063162;
-  color: #fbbf24;
+  background: #9d174d;
+  color: #fce7f3;
   font-size: 0.6rem;
   font-weight: 800;
   padding: 10px;
@@ -2584,8 +2584,8 @@ tbody tr:last-child td {
 }
 
 .unified-ticket-footer {
-  background: #063162;
-  color: #fbbf24;
+  background: #9d174d;
+  color: #fce7f3;
   font-size: 0.55rem;
   font-weight: 800;
   padding: 12px;
@@ -2597,7 +2597,7 @@ tbody tr:last-child td {
 @media (max-width: 900px) {
   .ultimate-hybrid-ticket { border-width: 6px; }
   .ticket-main-content { flex-direction: column; }
-  .official-stub-side { border-left: none; border-top: 3px dashed #063162; padding: 30px 15px 20px; }
+  .official-stub-side { border-left: none; border-top: 3px dashed #9d174d; padding: 30px 15px 20px; }
   .official-stub-side::before { left: -14px; top: -14px; transform: rotate(90deg); }
   .official-stub-side::after { right: -14px; top: -14px; bottom: auto; transform: rotate(90deg); }
 }
