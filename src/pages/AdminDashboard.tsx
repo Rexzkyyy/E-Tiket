@@ -65,26 +65,84 @@ const AdminDashboard: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.name.startsWith('~$')) {
+      setScanResult({ success: false, message: 'Harap pilih file aslinya. File dengan awalan ~$ adalah file sementara (sedang dibuka).' });
+      setTimeout(() => setScanResult(null), 4000);
+      e.target.value = ''; // Reset input
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = async (event) => {
-      const data = new Uint8Array(event.target?.result as ArrayBuffer);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const json: any[] = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+      try {
+        const data = new Uint8Array(event.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const json: any[] = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
 
-      const mapped = json.map(row => ({
-        barcode: row['Barcode'] || row['Nomor HP'] || Math.floor(Math.random() * 1000000).toString(),
-        nama_lengkap: row['Nama'] || row['Nama Lengkap'],
-        whatsapp: row['WhatsApp'] || row['Nomor HP'],
-        jenis_tiket: row['Jenis Tiket'] || row['Kategori'] || 'VIP GOLD 200K',
-        validasi_bayar: 'BELUM',
-        status_absen: 'BELUM',
-        status_wa: 'BELUM'
-      }));
+        if (json.length === 0) {
+          setScanResult({ success: false, message: 'File Excel kosong atau tidak terbaca.' });
+          setTimeout(() => setScanResult(null), 4000);
+          return;
+        }
 
-      await supabase.from('participants').insert(mapped);
-      fetchParticipants();
+        const mapped = json.flatMap(row => {
+          const findValue = (keywords: string[]) => {
+            const key = Object.keys(row).find(k => 
+              keywords.some(kw => k.toLowerCase().includes(kw))
+            );
+            return key ? row[key] : null;
+          };
+
+          const nama = findValue(['nama']) || 'Tanpa Nama';
+          const wa = findValue(['whatsapp', 'wa', 'hp', 'telp']) || '-';
+          const kategori = findValue(['kategori', 'jenis', 'tiket']) || 'VIP Gold 185K';
+          const qtyRaw = findValue(['jumlah', 'quantity', 'qty']);
+          
+          let qty = parseInt(String(qtyRaw), 10);
+          if (isNaN(qty) || qty < 1) qty = 1;
+
+          const results = [];
+          
+          for (let i = 0; i < qty; i++) {
+            const participantName = qty > 1 ? `${nama} (Tiket ${i + 1})` : nama.toString().trim();
+            let barcode = findValue(['barcode']);
+            
+            // If qty > 1, we must generate unique barcodes for each ticket, even if one is provided
+            if (!barcode || qty > 1) {
+               barcode = Math.floor(10000000 + Math.random() * 90000000).toString();
+            }
+
+            results.push({
+              barcode: barcode.toString().trim(),
+              nama_lengkap: participantName,
+              whatsapp: wa.toString().trim(),
+              jenis_tiket: kategori.toString().trim(),
+              validasi_bayar: 'BELUM',
+              status_absen: 'BELUM'
+            });
+          }
+          
+          return results;
+        });
+
+        const { error } = await supabase.from('participants').insert(mapped);
+        
+        if (error) {
+          console.error("Supabase Insert Error:", error);
+          setScanResult({ success: false, message: `Gagal: ${error.message} (Detail: ${error.details || ''})` });
+        } else {
+          setScanResult({ success: true, message: `Berhasil mengimpor ${mapped.length} data peserta.` });
+          fetchParticipants();
+        }
+      } catch (err: any) {
+        console.error("Excel Parse Error:", err);
+        setScanResult({ success: false, message: `Error memproses Excel: ${err.message}` });
+      } finally {
+        setTimeout(() => setScanResult(null), 8000);
+      }
     };
     reader.readAsArrayBuffer(file);
+    e.target.value = ''; // Reset input allow re-selecting same file
   }, [fetchParticipants]);
 
   const handleAddOrEdit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
@@ -105,8 +163,7 @@ const AdminDashboard: React.FC = () => {
       result = await supabase.from('participants').insert([{ 
         ...data, 
         barcode: generatedBarcode, 
-        status_absen: 'BELUM',
-        status_wa: 'BELUM'
+        status_absen: 'BELUM'
       }]);
     }
 
@@ -153,9 +210,6 @@ const AdminDashboard: React.FC = () => {
     const ticketUrl = `${window.location.origin}/t/${p.barcode}`;
     const message = `Halo *${p.nama_lengkap}*,\n\nTerima kasih telah mendaftar. Berikut adalah E-Tiket Anda:\n\n*Nomor Tiket:* ${formatTicketCode(p.barcode)}\n*Jenis Tiket:* ${p.jenis_tiket}\n\n*Lihat E-Tiket Resmi:* \n${ticketUrl}\n\nMohon tunjukkan barcode di link tersebut kepada panitia saat registrasi ulang. Sampai jumpa di acara Jeda Sejenak Menguatkan Hati!`;
     window.open(`https://wa.me/${p.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
-    
-    await supabase.from('participants').update({ status_wa: 'SUDAH' }).eq('barcode', p.barcode);
-    fetchParticipants();
   }, [fetchParticipants]);
 
   const startScanner = useCallback(() => {
@@ -459,9 +513,9 @@ const AdminDashboard: React.FC = () => {
                 <div className="input-row">
                   <div className="input-group">
                     <label>Kategori Tiket</label>
-                    <select name="jenis_tiket" defaultValue={editingParticipant?.jenis_tiket || 'VIP GOLD 200K'}>
-                      <option value="VIP GOLD 200K">VIP GOLD 200K</option>
-                      <option value="REGULER 100K">REGULER 100K</option>
+                    <select name="jenis_tiket" defaultValue={editingParticipant?.jenis_tiket || 'VIP Gold 185K'}>
+                      <option value="VIP Gold 185K">VIP Gold 185K</option>
+                      <option value="Silver 130K">Silver 130K</option>
                     </select>
                   </div>
                   <div className="input-group">
