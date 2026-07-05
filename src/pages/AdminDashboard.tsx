@@ -24,7 +24,9 @@ import {
   MessageCircle,
   ExternalLink,
   Tag,
-  FileDown
+  FileDown,
+  Filter,
+  MessageSquareOff
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { formatTicketCode } from '../utils';
@@ -40,6 +42,7 @@ const AdminDashboard: React.FC = () => {
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
   const [showScanner, setShowScanner] = useState(false);
   const [scanResult, setScanResult] = useState<{ success: boolean, message: string } | null>(null);
+  const [activeFilter, setActiveFilter] = useState<'all' | 'verified' | 'pending' | 'attended' | 'wa_not_sent'>('all');
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -241,14 +244,33 @@ const AdminDashboard: React.FC = () => {
     verified: participants.filter(p => p.validasi_bayar === 'SUDAH').length,
     pending: participants.filter(p => p.validasi_bayar === 'BELUM').length,
     attended: participants.filter(p => p.status_absen === 'SUDAH').length,
+    waNotSent: participants.filter(p => !p.status_wa || p.status_wa !== 'SUDAH').length,
   }), [participants]);
 
   const filteredParticipants = useMemo(() => {
-    return participants.filter(p => 
-      p.nama_lengkap.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.barcode.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [participants, searchTerm]);
+    let result = participants;
+
+    // Apply active filter first
+    if (activeFilter === 'verified') {
+      result = result.filter(p => p.validasi_bayar === 'SUDAH');
+    } else if (activeFilter === 'pending') {
+      result = result.filter(p => p.validasi_bayar === 'BELUM');
+    } else if (activeFilter === 'attended') {
+      result = result.filter(p => p.status_absen === 'SUDAH');
+    } else if (activeFilter === 'wa_not_sent') {
+      result = result.filter(p => !p.status_wa || p.status_wa !== 'SUDAH');
+    }
+
+    // Then apply search
+    if (searchTerm) {
+      result = result.filter(p =>
+        p.nama_lengkap.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.barcode.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return result;
+  }, [participants, searchTerm, activeFilter]);
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredParticipants.length / itemsPerPage);
@@ -346,6 +368,43 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
           </section>
+
+          {/* Filter Pills */}
+          <div className="filter-pills-bar">
+            <div className="filter-pills-label"><Filter size={14} /> Filter:</div>
+            <div className="filter-pills">
+              <button
+                className={`filter-pill ${activeFilter === 'all' ? 'active all' : ''}`}
+                onClick={() => { setActiveFilter('all'); setCurrentPage(1); }}
+              >
+                <Users size={14} /> Semua <span className="pill-count">{stats.total}</span>
+              </button>
+              <button
+                className={`filter-pill ${activeFilter === 'verified' ? 'active verified' : ''}`}
+                onClick={() => { setActiveFilter('verified'); setCurrentPage(1); }}
+              >
+                <ShieldCheck size={14} /> Terverifikasi <span className="pill-count">{stats.verified}</span>
+              </button>
+              <button
+                className={`filter-pill ${activeFilter === 'pending' ? 'active pending' : ''}`}
+                onClick={() => { setActiveFilter('pending'); setCurrentPage(1); }}
+              >
+                <Clock size={14} /> Belum Lunas <span className="pill-count">{stats.pending}</span>
+              </button>
+              <button
+                className={`filter-pill ${activeFilter === 'attended' ? 'active attended' : ''}`}
+                onClick={() => { setActiveFilter('attended'); setCurrentPage(1); }}
+              >
+                <CheckCircle size={14} /> Sudah Hadir <span className="pill-count">{stats.attended}</span>
+              </button>
+              <button
+                className={`filter-pill ${activeFilter === 'wa_not_sent' ? 'active wa-not-sent' : ''}`}
+                onClick={() => { setActiveFilter('wa_not_sent'); setCurrentPage(1); }}
+              >
+                <MessageSquareOff size={14} /> Belum Kirim WA <span className="pill-count">{stats.waNotSent}</span>
+              </button>
+            </div>
+          </div>
 
           {/* Table/Grid Actions */}
           <div className="content-toolbar">

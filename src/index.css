@@ -1141,12 +1141,91 @@ tbody tr:last-child td {
   letter-spacing: -0.02em;
 }
 
+/* ========================
+   FILTER PILLS BAR
+======================== */
+.filter-pills-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-pills-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  white-space: nowrap;
+}
+
+.filter-pill:hover {
+  border-color: #be185d;
+  color: #be185d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(190, 24, 93, 0.12);
+}
+
+.filter-pill .pill-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: #f1f5f9;
+  color: #475569;
+  transition: all 0.25s;
+}
+
+/* Active states per filter */
+.filter-pill.active.all { background: linear-gradient(135deg, #be185d, #ec4899); color: white; border-color: transparent; box-shadow: 0 6px 20px rgba(190,24,93,0.3); }
+.filter-pill.active.verified { background: linear-gradient(135deg, #059669, #10b981); color: white; border-color: transparent; box-shadow: 0 6px 20px rgba(16,185,129,0.3); }
+.filter-pill.active.pending { background: linear-gradient(135deg, #d97706, #f59e0b); color: white; border-color: transparent; box-shadow: 0 6px 20px rgba(245,158,11,0.3); }
+.filter-pill.active.attended { background: linear-gradient(135deg, #7c3aed, #a78bfa); color: white; border-color: transparent; box-shadow: 0 6px 20px rgba(124,58,237,0.3); }
+.filter-pill.active.wa-not-sent { background: linear-gradient(135deg, #0284c7, #38bdf8); color: white; border-color: transparent; box-shadow: 0 6px 20px rgba(2,132,199,0.3); }
+
+.filter-pill.active .pill-count { background: rgba(255,255,255,0.25); color: white; }
+
 .content-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
 }
+
 
 .toolbar-left h3 {
   font-size: 1.5rem;
@@ -1772,6 +1851,35 @@ tbody tr:last-child td {
     margin-bottom: 20px;
   }
 
+  .filter-pills-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .filter-pills {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
+    width: 100%;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .filter-pills::-webkit-scrollbar { display: none; }
+
+  .filter-pill {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    flex-shrink: 0;
+  }
+
+  .filter-pill svg { width: 12px; height: 12px; }
+
+  .filter-pills-label { font-size: 0.7rem; }
+
   .toolbar-left h3 { font-size: 1.25rem; }
   .toolbar-right { width: 100%; justify-content: space-between; flex-wrap: wrap; }
   
@@ -1862,6 +1970,12 @@ tbody tr:last-child td {
   .content-toolbar h3 { font-size: 0.85rem; }
   .toolbar-right { flex-direction: column; align-items: stretch; gap: 6px; }
   .btn-action-outline { padding: 6px; font-size: 0.7rem; }
+
+  .filter-pills-bar { gap: 4px; margin-bottom: 10px; }
+  .filter-pills-label { display: none; }
+  .filter-pill { font-size: 0.65rem; padding: 4px 8px; gap: 3px; }
+  .filter-pill svg { width: 10px; height: 10px; }
+  .filter-pill .pill-count { min-width: 16px; height: 16px; font-size: 0.6rem; padding: 0 4px; }
 
   .table-glass table { min-width: 100%; }
   .table-glass th, .table-glass td { padding: 8px 6px; font-size: 0.7rem; }
