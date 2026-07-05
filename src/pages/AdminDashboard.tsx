@@ -128,13 +128,31 @@ const AdminDashboard: React.FC = () => {
           return results;
         });
 
-        const { error } = await supabase.from('participants').insert(mapped);
+        // Cek data lama di database
+        const { data: existingData, error: fetchError } = await supabase.from('participants').select('nama_lengkap, whatsapp, jenis_tiket');
+        if (fetchError) throw fetchError;
+
+        // Filter data baru yang belum ada di database
+        const newParticipants = mapped.filter(newP => {
+          return !existingData?.some(extP => 
+            extP.nama_lengkap.toLowerCase() === newP.nama_lengkap.toLowerCase() && 
+            extP.whatsapp === newP.whatsapp && 
+            extP.jenis_tiket.toLowerCase() === newP.jenis_tiket.toLowerCase()
+          );
+        });
+
+        if (newParticipants.length === 0) {
+          setScanResult({ success: true, message: 'Data Excel sudah ada semua di sistem. Tidak ada data baru yang ditambahkan.' });
+          return; // finally block will clear the message later
+        }
+
+        const { error } = await supabase.from('participants').insert(newParticipants);
         
         if (error) {
           console.error("Supabase Insert Error:", error);
           setScanResult({ success: false, message: `Gagal: ${error.message} (Detail: ${error.details || ''})` });
         } else {
-          setScanResult({ success: true, message: `Berhasil mengimpor ${mapped.length} data peserta.` });
+          setScanResult({ success: true, message: `Berhasil menambah ${newParticipants.length} data baru. (${mapped.length - newParticipants.length} data lama dilewati)` });
           fetchParticipants();
         }
       } catch (err: any) {
