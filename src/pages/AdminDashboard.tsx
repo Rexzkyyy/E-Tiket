@@ -409,12 +409,12 @@ const AdminDashboard: React.FC = () => {
                         </td>
                         <td>
                           <span className={`status-tag ${p.status_absen === 'SUDAH' ? 'attended' : 'not-yet'}`}>
-                            {p.status_absen === 'SUDAH' ? 'Sudah' : 'Belum'}
+                            {p.status_absen === 'SUDAH' ? 'Hadir' : 'Belum Hadir'}
                           </span>
                         </td>
                         <td>
                           <span className={`status-tag ${p.status_wa === 'SUDAH' ? 'attended' : 'not-yet'}`}>
-                            {p.status_wa === 'SUDAH' ? 'Terkirim' : 'Belum'}
+                            {p.status_wa === 'SUDAH' ? 'Terkirim' : 'Belum Terkirim'}
                           </span>
                         </td>
                          <td>

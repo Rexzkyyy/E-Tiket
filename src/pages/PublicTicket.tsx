@@ -155,7 +155,7 @@ const PublicTicket: React.FC = () => {
           <div className="ticket-main-content">
             {/* Left Side: Visual Flyer */}
             <div className="visual-flyer-side">
-              <img src="/poster-jeda-sejenak.png" alt="Event Flyer" className="flyer-img" />
+              <img src="/poster_new.png" alt="Event Flyer" className="flyer-img" />
             </div>
 
             {/* Right Side: THE EXACT PORTRAIT STUB */}
