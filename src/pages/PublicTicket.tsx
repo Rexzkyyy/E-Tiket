@@ -57,7 +57,7 @@ const PublicTicket: React.FC = () => {
 
       const image = canvas.toDataURL('image/png', 1.0);
       const link = document.createElement('a');
-      link.download = `Ticket-${participant?.nama_lengkap || 'Download'}.png`;
+      link.download = `Ticket-${participant?.nama_lengkap || 'Download'}-${participant?.barcode || ''}.png`;
       link.href = image;
       link.click();
     } catch (err) {
@@ -90,7 +90,7 @@ const PublicTicket: React.FC = () => {
       });
 
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-      pdf.save(`Ticket-${participant?.nama_lengkap || 'Download'}.pdf`);
+      pdf.save(`Ticket-${participant?.nama_lengkap || 'Download'}-${participant?.barcode || ''}.pdf`);
     } catch (err) {
       console.error('PDF download failed', err);
     } finally {
