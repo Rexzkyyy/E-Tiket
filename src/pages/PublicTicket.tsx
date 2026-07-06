@@ -9,7 +9,7 @@ import { jsPDF } from 'jspdf';
 
 // Use credentials from your existing config or environment
 import { supabase } from '../supabaseClient';
-import { formatTicketCode } from '../utils';
+import { formatTicketCode, normalizeJenisTiket } from '../utils';
 import { Participant } from '../types';
 
 const PublicTicket: React.FC = () => {
@@ -200,7 +200,7 @@ const PublicTicket: React.FC = () => {
                 </div>
                 <div className="s-row">
                   <span className="s-label">KATEGORI</span>
-                  <span className="s-val">{participant.jenis_tiket.toUpperCase()}</span>
+                  <span className="s-val">{normalizeJenisTiket(participant.jenis_tiket).toUpperCase()}</span>
                 </div>
                 <div className="s-row">
                   <span className="s-label">PESERTA</span>

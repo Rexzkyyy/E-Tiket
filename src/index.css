@@ -1542,6 +1542,8 @@ tbody tr:last-child td {
   background: white;
   width: 100%;
   max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
   border-radius: 32px;
   padding: 40px;
   box-shadow: 0 25px 60px rgba(0,0,0,0.2);
@@ -1932,7 +1934,7 @@ tbody tr:last-child td {
   }
 
   .modal-overlay-glass { padding: 16px; z-index: 2000; background: rgba(74, 13, 46, 0.6); }
-  .modal-card { padding: 20px; max-height: 80vh; border-radius: 16px; background: white !important; }
+  .modal-card { padding: 20px; max-height: 80vh; overflow-y: auto; border-radius: 16px; background: white !important; }
 }
 
 /* Ultra Small / 220x300 specifically */

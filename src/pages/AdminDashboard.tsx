@@ -29,7 +29,7 @@ import {
   MessageSquareOff
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
-import { formatTicketCode } from '../utils';
+import { formatTicketCode, normalizeJenisTiket } from '../utils';
 import { Participant } from '../types';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
@@ -89,17 +89,27 @@ const AdminDashboard: React.FC = () => {
         }
 
         const mapped = json.flatMap(row => {
-          const findValue = (keywords: string[]) => {
+          const findValue = (keywords: string[], exclude: string[] = []) => {
             const key = Object.keys(row).find(k => 
-              keywords.some(kw => k.toLowerCase().includes(kw))
+              keywords.some(kw => k.toLowerCase().includes(kw)) &&
+              !exclude.some(ex => k.toLowerCase().includes(ex))
             );
             return key ? row[key] : null;
           };
 
-          const nama = findValue(['nama']) || 'Tanpa Nama';
+          const nama = findValue(['nama lengkap', 'nama']) || 'Tanpa Nama';
           const wa = findValue(['whatsapp', 'wa', 'hp', 'telp']) || '-';
-          const kategori = findValue(['kategori', 'jenis', 'tiket']) || 'VIP Gold 185K';
+          const kategori = findValue(['kategori', 'jenis', 'tiket'], ['kelamin']) || 'VIP Gold 185K';
           const qtyRaw = findValue(['jumlah', 'quantity', 'qty']);
+          
+          const email = findValue(['email']);
+          const jenis_kelamin = findValue(['kelamin']);
+          const usia = findValue(['usia', 'umur']);
+          const alamat = findValue(['alamat', 'domisili']);
+          const metode_pembayaran = findValue(['metode pembayaran']);
+          const bukti_transfer = findValue(['bukti transfer']);
+          const nama_pengirim = findValue(['nama pengirim']);
+          const harapan_event = findValue(['harapan', 'dapatkan dari event ini']);
           
           let qty = parseInt(String(qtyRaw), 10);
           if (isNaN(qty) || qty < 1) qty = 1;
@@ -121,7 +131,16 @@ const AdminDashboard: React.FC = () => {
               whatsapp: wa.toString().trim(),
               jenis_tiket: kategori.toString().trim(),
               validasi_bayar: 'BELUM',
-              status_absen: 'BELUM'
+              status_absen: 'BELUM',
+              email: email?.toString().trim() || null,
+              jenis_kelamin: jenis_kelamin?.toString().trim() || null,
+              usia: usia?.toString().trim() || null,
+              alamat: alamat?.toString().trim() || null,
+              jumlah_tiket: qty,
+              metode_pembayaran: metode_pembayaran?.toString().trim() || null,
+              bukti_transfer: bukti_transfer?.toString().trim() || null,
+              nama_pengirim: nama_pengirim?.toString().trim() || null,
+              harapan_event: harapan_event?.toString().trim() || null
             });
           }
           
@@ -174,6 +193,14 @@ const AdminDashboard: React.FC = () => {
       jenis_tiket: formData.get('jenis_tiket') as string,
       validasi_bayar: formData.get('validasi_bayar') as any,
       whatsapp: formData.get('whatsapp') as string,
+      email: (formData.get('email') as string) || null,
+      jenis_kelamin: (formData.get('jenis_kelamin') as string) || null,
+      usia: (formData.get('usia') as string) || null,
+      alamat: (formData.get('alamat') as string) || null,
+      metode_pembayaran: (formData.get('metode_pembayaran') as string) || null,
+      bukti_transfer: (formData.get('bukti_transfer') as string) || null,
+      nama_pengirim: (formData.get('nama_pengirim') as string) || null,
+      harapan_event: (formData.get('harapan_event') as string) || null,
     };
 
     let result;
@@ -229,7 +256,7 @@ const AdminDashboard: React.FC = () => {
 
   const sendWhatsApp = useCallback(async (p: Participant) => {
     const ticketUrl = `${window.location.origin}/t/${p.barcode}`;
-    const message = `Halo *${p.nama_lengkap}*,\n\nTerima kasih telah mendaftar. Berikut adalah E-Tiket Anda:\n\n*Nomor Tiket:* ${formatTicketCode(p.barcode)}\n*Jenis Tiket:* ${p.jenis_tiket}\n\n*Lihat E-Tiket Resmi:* \n${ticketUrl}\n\nMohon tunjukkan barcode di link tersebut kepada panitia saat registrasi ulang. Sampai jumpa di acara Jeda Sejenak Menguatkan Hati!`;
+    const message = `Halo *${p.nama_lengkap}*,\n\nTerima kasih telah mendaftar. Berikut adalah E-Tiket Anda:\n\n*Nomor Tiket:* ${formatTicketCode(p.barcode)}\n*Jenis Tiket:* ${normalizeJenisTiket(p.jenis_tiket)}\n\n*Lihat E-Tiket Resmi:* \n${ticketUrl}\n\nMohon tunjukkan barcode di link tersebut kepada panitia saat registrasi ulang. Sampai jumpa di acara Jeda Sejenak Menguatkan Hati!`;
     window.open(`https://wa.me/${p.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
   }, [fetchParticipants]);
 
@@ -478,7 +505,7 @@ const AdminDashboard: React.FC = () => {
                             </div>
                           </div>
                         </td>
-                        <td><span className="category-tag">{p.jenis_tiket}</span></td>
+                        <td><span className="category-tag">{normalizeJenisTiket(p.jenis_tiket)}</span></td>
                         <td>
                           <span className={`status-tag ${p.validasi_bayar === 'SUDAH' ? 'approved' : 'pending'}`}>
                             {p.validasi_bayar === 'SUDAH' ? 'Lunas' : 'Belum Lunas'}
@@ -526,7 +553,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div className="card-content">
                       <h4>{p.nama_lengkap}</h4>
-                      <p className="p-category">{p.jenis_tiket}</p>
+                      <p className="p-category">{normalizeJenisTiket(p.jenis_tiket)}</p>
                       <code className="p-code">{formatTicketCode(p.barcode)}</code>
                     </div>
                      <div className="card-actions">
@@ -582,9 +609,57 @@ const AdminDashboard: React.FC = () => {
                   <label>Nama Lengkap</label>
                   <input name="nama_lengkap" defaultValue={editingParticipant?.nama_lengkap} required placeholder="Nama sesuai KTP" />
                 </div>
+                
+                <div className="input-row">
+                  <div className="input-group">
+                    <label>Nomor WhatsApp</label>
+                    <input name="whatsapp" defaultValue={editingParticipant?.whatsapp} required placeholder="Contoh: 0812345678" />
+                  </div>
+                  <div className="input-group">
+                    <label>Email</label>
+                    <input name="email" type="email" defaultValue={editingParticipant?.email} placeholder="Email" />
+                  </div>
+                </div>
+
+                <div className="input-row">
+                  <div className="input-group">
+                    <label>Jenis Kelamin</label>
+                    <select name="jenis_kelamin" defaultValue={editingParticipant?.jenis_kelamin || ''}>
+                      <option value="">Pilih...</option>
+                      <option value="Laki-laki">Laki-laki</option>
+                      <option value="Perempuan">Perempuan</option>
+                    </select>
+                  </div>
+                  <div className="input-group">
+                    <label>Usia</label>
+                    <input name="usia" type="number" defaultValue={editingParticipant?.usia} placeholder="Usia" />
+                  </div>
+                </div>
+
                 <div className="input-group">
-                  <label>Nomor WhatsApp</label>
-                  <input name="whatsapp" defaultValue={editingParticipant?.whatsapp} required placeholder="Contoh: 0812345678" />
+                  <label>Alamat / Domisili</label>
+                  <input name="alamat" defaultValue={editingParticipant?.alamat} placeholder="Alamat" />
+                </div>
+
+                <div className="input-row">
+                  <div className="input-group">
+                    <label>Metode Pembayaran</label>
+                    <input name="metode_pembayaran" defaultValue={editingParticipant?.metode_pembayaran} placeholder="Transfer Bank, dll" />
+                  </div>
+                  <div className="input-group">
+                    <label>Nama Pengirim</label>
+                    <input name="nama_pengirim" defaultValue={editingParticipant?.nama_pengirim} placeholder="Nama di Rekening" />
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label>Bukti Transfer (Link/Teks)</label>
+                  <input name="bukti_transfer" defaultValue={editingParticipant?.bukti_transfer} placeholder="URL Bukti Transfer" />
+                </div>
+
+                <div className="input-group">
+                  <label>Harapan Event</label>
+                  <textarea name="harapan_event" defaultValue={editingParticipant?.harapan_event} placeholder="Harapan mengikuti event" rows={2} style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e5e7eb'}}></textarea>
                 </div>
 
                 <div className="input-row">
