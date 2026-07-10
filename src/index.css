@@ -3082,3 +3082,254 @@ tbody tr:last-child td {
     font-size: 0.8rem;
   }
 }
+
+/* ==========================================
+   Sales Analysis Styles
+   ========================================== */
+.analysis-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 8px 4px;
+}
+
+.analysis-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.analysis-card {
+  display: flex;
+  align-items: center;
+  padding: 24px;
+  border-radius: 24px;
+  background: white;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+}
+
+.analysis-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+}
+
+.analysis-card .card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+.analysis-card.green .card-icon { background: #dcfce7; color: #10b981; }
+.analysis-card.gold .card-icon { background: #fef3c7; color: #d97706; }
+.analysis-card.blue .card-icon { background: #e0f2fe; color: #0284c7; }
+
+.analysis-card .card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.analysis-card .label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.analysis-card .value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.analysis-card .subtext {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.analysis-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 24px;
+}
+
+.details-col-left, .details-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.details-card-glass {
+  background: white;
+  border: 1px solid #f1f5f9;
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+}
+
+.details-card-glass h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.category-stats-list, .payment-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.category-stat-item, .payment-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-header, .payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-header .name, .payment-header .method-name {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #334155;
+}
+
+.item-header .qty, .payment-header .method-qty {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background: #f1f5f9;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-bar-container.mini {
+  height: 6px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.5s ease-in-out;
+}
+
+.item-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.item-footer .pending-rev {
+  color: #d97706;
+}
+
+.payment-rev-text {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: right;
+}
+
+.recent-table-container {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+}
+
+.recent-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.recent-table th {
+  background: #f8fafc;
+  padding: 14px 16px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.recent-table td {
+  padding: 14px 16px;
+  font-size: 0.8rem;
+  color: #334155;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.recent-table tr:last-child td {
+  border-bottom: none;
+}
+
+.recent-table .tx-name {
+  font-weight: 800;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-table .tx-total {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.no-data-text {
+  color: #94a3b8;
+  text-align: center;
+  font-size: 0.85rem;
+  padding: 20px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .analysis-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .analysis-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  .analysis-card {
+    padding: 16px;
+  }
+  .analysis-card .value {
+    font-size: 1.3rem;
+  }
+  .details-card-glass {
+    padding: 16px;
+  }
+  .recent-table th, .recent-table td {
+    padding: 10px;
+    font-size: 0.75rem;
+  }
+}
+

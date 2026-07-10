@@ -79,10 +79,10 @@ const PublicTicket: React.FC = () => {
       });
 
       const imgData = canvas.toDataURL('image/png');
-      
+
       // Calculate orientation based on canvas aspect ratio
       const orientation = canvas.width > canvas.height ? 'landscape' : 'portrait';
-      
+
       const pdf = new jsPDF({
         orientation: orientation,
         unit: 'px',
@@ -140,7 +140,7 @@ const PublicTicket: React.FC = () => {
         </div>
       </header>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="ticket-wrapper"
@@ -162,10 +162,10 @@ const PublicTicket: React.FC = () => {
             <div className="official-stub-side">
               {/* Decorative Notches */}
               <div className="official-stub-side-notch-bottom"></div>
-              
+
               {/* Header Badge */}
               <div className="stub-badge">TIKET MASUK RESMI</div>
-              
+
               {/* Logo Card */}
               <div className="stub-logo-card">
                 <img src="/logo_ruang_tenang.jpg-removebg-preview.png" alt="Ruang Tenang Logo" className="stub-logo-img" />
@@ -216,13 +216,13 @@ const PublicTicket: React.FC = () => {
 
               {/* Barcode Footer */}
               <div className="stub-barcode-footer">
-                <Barcode 
-                  value={participant.barcode} 
-                  format="CODE128" 
-                  width={2} 
-                  height={60} 
+                <Barcode
+                  value={participant.barcode}
+                  format="CODE128"
+                  width={2}
+                  height={60}
                   displayValue={false}
-                  background="transparent" 
+                  background="transparent"
                 />
                 <div className="b-code" style={{ fontSize: '1.2rem', marginTop: '5px', fontWeight: 'bold' }}>{participant.barcode}</div>
               </div>
@@ -256,7 +256,7 @@ const PublicTicket: React.FC = () => {
           )}
         </div>
       </motion.div>
-      
+
       <footer className="public-footer">
         <p>© 2026 Ruang Tenang & Rumah Pelangi. All rights reserved.</p>
       </footer>

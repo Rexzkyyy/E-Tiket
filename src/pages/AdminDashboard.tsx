@@ -32,6 +32,486 @@ import { supabase } from '../supabaseClient';
 import { formatTicketCode, normalizeJenisTiket } from '../utils';
 import { Participant } from '../types';
 import { Html5QrcodeScanner } from 'html5-qrcode';
+import { jsPDF } from 'jspdf';
+
+interface SalesAnalysisProps {
+  participants: Participant[];
+}
+
+const SalesAnalysis: React.FC<SalesAnalysisProps> = ({ participants }) => {
+  // Helper to parse price
+  const getTicketPrice = (jenis: string): number => {
+    if (!jenis) return 0;
+    const upper = jenis.toUpperCase();
+    if (upper.includes('SILVER')) return 130000;
+    if (upper.includes('VIP')) return 185000;
+    
+    // Fallback parsing numeric values
+    const match = jenis.match(/\d+/);
+    if (match) {
+      const num = parseInt(match[0]);
+      if (num < 1000) return num * 1000; // e.g. 185 -> 185000
+      return num;
+    }
+    return 0;
+  };
+
+  const getTicketQty = (p: Participant): number => {
+    const qty = Number(p.jumlah_tiket);
+    return isNaN(qty) || qty <= 0 ? 1 : qty;
+  };
+
+  // Stats Calculation
+  const analysisStats = useMemo(() => {
+    let revenueLunas = 0;
+    let revenuePending = 0;
+    let ticketsLunas = 0;
+    let ticketsPending = 0;
+
+    const ticketCategories: Record<string, { lunasQty: number; pendingQty: number; lunasRev: number; pendingRev: number }> = {
+      'VIP Gold 185K': { lunasQty: 0, pendingQty: 0, lunasRev: 0, pendingRev: 0 },
+      'Silver 130K': { lunasQty: 0, pendingQty: 0, lunasRev: 0, pendingRev: 0 },
+    };
+
+    const paymentMethods: Record<string, { qty: number; rev: number }> = {};
+
+    participants.forEach(p => {
+      const price = getTicketPrice(p.jenis_tiket);
+      const qty = getTicketQty(p);
+      const total = price * qty;
+      const category = normalizeJenisTiket(p.jenis_tiket) || 'Lainnya';
+
+      // Initialize category if not exists
+      if (!ticketCategories[category]) {
+        ticketCategories[category] = { lunasQty: 0, pendingQty: 0, lunasRev: 0, pendingRev: 0 };
+      }
+
+      if (p.validasi_bayar === 'SUDAH') {
+        revenueLunas += total;
+        ticketsLunas += qty;
+        ticketCategories[category].lunasQty += qty;
+        ticketCategories[category].lunasRev += total;
+      } else {
+        revenuePending += total;
+        ticketsPending += qty;
+        ticketCategories[category].pendingQty += qty;
+        ticketCategories[category].pendingRev += total;
+      }
+
+      // Payment Method Stats (Only for valid methods)
+      const method = p.metode_pembayaran?.trim() || 'Belum Ditentukan';
+      if (!paymentMethods[method]) {
+        paymentMethods[method] = { qty: 0, rev: 0 };
+      }
+      paymentMethods[method].qty += qty;
+      if (p.validasi_bayar === 'SUDAH') {
+        paymentMethods[method].rev += total;
+      }
+    });
+
+    // Recent 6 transactions (Lunas/Pending) sorted by created_at desc
+    const recentTransactions = [...participants]
+      .sort((a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime())
+      .slice(0, 6);
+
+    return {
+      revenueLunas,
+      revenuePending,
+      ticketsLunas,
+      ticketsPending,
+      ticketCategories,
+      paymentMethods: Object.entries(paymentMethods)
+        .sort((a, b) => b[1].qty - a[1].qty)
+        .slice(0, 5),
+      recentTransactions,
+    };
+  }, [participants]);
+
+  // Format Rupiah helper
+  const formatRupiah = (value: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
+
+  const totalRevenue = analysisStats.revenueLunas + analysisStats.revenuePending;
+  const totalTickets = analysisStats.ticketsLunas + analysisStats.ticketsPending;
+
+  const exportToPDF = () => {
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
+      format: 'a4'
+    });
+
+    const primaryColor = [15, 23, 42]; // slate-900
+    const secondaryColor = [71, 85, 105]; // slate-600
+    const borderColor = [226, 232, 240]; // slate-200
+    const lightBg = [248, 250, 252]; // slate-50
+
+    // Title & Header
+    pdf.setFont('Helvetica', 'bold');
+    pdf.setFontSize(18);
+    pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    pdf.text('LAPORAN ANALISIS PENJUALAN TIKET', 40, 50);
+
+    pdf.setFont('Helvetica', 'normal');
+    pdf.setFontSize(10);
+    pdf.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    pdf.text('Event: Jeda Sejenak Menguatkan Hati 2026', 40, 68);
+    pdf.text(`Tanggal Laporan: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, 40, 82);
+
+    // Decorative Line
+    pdf.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    pdf.setLineWidth(1.5);
+    pdf.line(40, 95, 555, 95);
+
+    // SECTION 1: RINGKASAN PENDAPATAN
+    pdf.setFont('Helvetica', 'bold');
+    pdf.setFontSize(12);
+    pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    pdf.text('1. RINGKASAN PENDAPATAN', 40, 120);
+
+    // Table/Grid summary box
+    pdf.setFillColor(lightBg[0], lightBg[1], lightBg[2]);
+    pdf.rect(40, 135, 515, 60, 'F');
+    pdf.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+    pdf.setLineWidth(1);
+    pdf.rect(40, 135, 515, 60, 'S');
+
+    // Box Columns
+    // Col 1: Pendapatan Lunas
+    pdf.setFont('Helvetica', 'normal');
+    pdf.setFontSize(9);
+    pdf.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    pdf.text('PENDAPATAN LUNAS', 60, 155);
+    pdf.setFont('Helvetica', 'bold');
+    pdf.setFontSize(12);
+    pdf.setTextColor(16, 185, 129); // green-500
+    pdf.text(formatRupiah(analysisStats.revenueLunas), 60, 175);
+
+    // Col 2: Pendapatan Tertunda
+    pdf.setFont('Helvetica', 'normal');
+    pdf.setFontSize(9);
+    pdf.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    pdf.text('PENDAPATAN TERTUNDA', 240, 155);
+    pdf.setFont('Helvetica', 'bold');
+    pdf.setFontSize(12);
+    pdf.setTextColor(217, 119, 6); // orange-600
+    pdf.text(formatRupiah(analysisStats.revenuePending), 240, 175);
+
+    // Col 3: Tiket Terjual
+    pdf.setFont('Helvetica', 'normal');
+    pdf.setFontSize(9);
+    pdf.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    pdf.text('TOTAL TIKET TERJUAL', 420, 155);
+    pdf.setFont('Helvetica', 'bold');
+    pdf.setFontSize(12);
+    pdf.setTextColor(2, 132, 199); // blue-600
+    pdf.text(`${totalTickets} Tiket`, 420, 175);
+
+    // SECTION 2: KATEGORI TIKET
+    pdf.setFont('Helvetica', 'bold');
+    pdf.setFontSize(12);
+    pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    pdf.text('2. PENJUALAN PER KATEGORI TIKET', 40, 220);
+
+    // Headers for table
+    let tableY = 240;
+    pdf.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    pdf.rect(40, tableY, 515, 20, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(8.5);
+    pdf.setFont('Helvetica', 'bold');
+    pdf.text('Kategori', 50, tableY + 14);
+    pdf.text('Qty Lunas', 180, tableY + 14);
+    pdf.text('Qty Pending', 260, tableY + 14);
+    pdf.text('Total Qty', 340, tableY + 14);
+    pdf.text('Total Nominal', 450, tableY + 14);
+
+    tableY += 20;
+
+    // Rows
+    pdf.setFont('Helvetica', 'normal');
+    pdf.setFontSize(9);
+    pdf.setTextColor(15, 23, 42);
+
+    Object.entries(analysisStats.ticketCategories).forEach(([name, cat]) => {
+      const totalCatQty = cat.lunasQty + cat.pendingQty;
+      const totalCatRev = cat.lunasRev + cat.pendingRev;
+
+      // Draw background row borders
+      pdf.setDrawColor(241, 245, 249);
+      pdf.line(40, tableY + 20, 555, tableY + 20);
+
+      pdf.text(name, 50, tableY + 14);
+      pdf.text(`${cat.lunasQty}`, 180, tableY + 14);
+      pdf.text(`${cat.pendingQty}`, 260, tableY + 14);
+      pdf.text(`${totalCatQty}`, 340, tableY + 14);
+      pdf.text(formatRupiah(totalCatRev), 450, tableY + 14);
+
+      tableY += 20;
+    });
+
+    // SECTION 3: METODE PEMBAYARAN
+    pdf.setFont('Helvetica', 'bold');
+    pdf.setFontSize(12);
+    pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    pdf.text('3. METODE PEMBAYARAN TERPOPULER (LUNAS)', 40, tableY + 35);
+
+    tableY += 50;
+
+    // Table Headers
+    pdf.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    pdf.rect(40, tableY, 515, 20, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(8.5);
+    pdf.setFont('Helvetica', 'bold');
+    pdf.text('Metode Pembayaran', 50, tableY + 14);
+    pdf.text('Jumlah Pengguna', 250, tableY + 14);
+    pdf.text('Total Nominal Lunas', 450, tableY + 14);
+
+    tableY += 20;
+
+    pdf.setFont('Helvetica', 'normal');
+    pdf.setFontSize(9);
+    pdf.setTextColor(15, 23, 42);
+
+    if (analysisStats.paymentMethods.length > 0) {
+      analysisStats.paymentMethods.forEach(([method, data]) => {
+        pdf.setDrawColor(241, 245, 249);
+        pdf.line(40, tableY + 20, 555, tableY + 20);
+
+        pdf.text(method, 50, tableY + 14);
+        pdf.text(`${data.qty} Peserta`, 250, tableY + 14);
+        pdf.text(formatRupiah(data.rev), 450, tableY + 14);
+
+        tableY += 20;
+      });
+    } else {
+      pdf.text('Belum ada transaksi pembayaran lunas.', 50, tableY + 14);
+      tableY += 20;
+    }
+
+    // SECTION 4: TRANSAKSI TERBARU
+    pdf.setFont('Helvetica', 'bold');
+    pdf.setFontSize(12);
+    pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    pdf.text('4. TRANSAKSI TERBARU (PENDAFTARAN TERAKHIR)', 40, tableY + 35);
+
+    tableY += 50;
+
+    // Table Headers
+    pdf.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    pdf.rect(40, tableY, 515, 20, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(8.5);
+    pdf.setFont('Helvetica', 'bold');
+    pdf.text('Nama Peserta', 50, tableY + 14);
+    pdf.text('Tanggal', 200, tableY + 14);
+    pdf.text('Kategori Tiket', 280, tableY + 14);
+    pdf.text('Jumlah', 380, tableY + 14);
+    pdf.text('Total Bayar', 430, tableY + 14);
+    pdf.text('Status', 510, tableY + 14);
+
+    tableY += 20;
+
+    pdf.setFont('Helvetica', 'normal');
+    pdf.setFontSize(8.5);
+    pdf.setTextColor(15, 23, 42);
+
+    analysisStats.recentTransactions.forEach(tx => {
+      const price = getTicketPrice(tx.jenis_tiket);
+      const qty = getTicketQty(tx);
+      const total = price * qty;
+      const dateFormatted = tx.created_at 
+        ? new Date(tx.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+        : '-';
+
+      pdf.setDrawColor(241, 245, 249);
+      pdf.line(40, tableY + 20, 555, tableY + 20);
+
+      pdf.text(tx.nama_lengkap.substring(0, 24), 50, tableY + 14);
+      pdf.text(dateFormatted, 200, tableY + 14);
+      pdf.text(normalizeJenisTiket(tx.jenis_tiket), 280, tableY + 14);
+      pdf.text(`${qty}`, 380, tableY + 14);
+      pdf.text(formatRupiah(total), 430, tableY + 14);
+      pdf.text(tx.validasi_bayar === 'SUDAH' ? 'LUNAS' : 'PENDING', 510, tableY + 14);
+
+      tableY += 20;
+    });
+
+    // Footer Page Number / Copyright
+    pdf.setFont('Helvetica', 'normal');
+    pdf.setFontSize(7.5);
+    pdf.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    pdf.text('Laporan digenerate otomatis oleh Sistem E-Tiket Ruang Tenang. Rahasia dan Terbatas.', 40, 810);
+    pdf.text('Halaman 1 dari 1', 500, 810);
+
+    pdf.save(`Laporan-Analisis-Penjualan-${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
+  return (
+    <div className="analysis-container">
+      {/* Header with Export button */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '12px' }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#0f172a' }}>Analisis Penjualan Tiket</h2>
+          <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.85rem' }}>Laporan ringkasan penjualan dan analitik pendapatan event.</p>
+        </div>
+        <button 
+          className="btn-action-outline" 
+          onClick={exportToPDF}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '10px 16px', borderRadius: '12px', border: '1px solid #cbd5e1', fontWeight: 600, fontSize: '0.85rem' }}
+        >
+          <FileDown size={18} /> <span>Ekspor PDF Laporan</span>
+        </button>
+      </div>
+
+      {/* Overview Cards */}
+      <div className="analysis-summary-grid">
+        <div className="analysis-card green">
+          <div className="card-icon"><ShieldCheck size={24} /></div>
+          <div className="card-info">
+            <span className="label">Pendapatan Lunas</span>
+            <h2 className="value">{formatRupiah(analysisStats.revenueLunas)}</h2>
+            <span className="subtext">{analysisStats.ticketsLunas} Tiket Terverifikasi</span>
+          </div>
+        </div>
+
+        <div className="analysis-card gold">
+          <div className="card-icon"><Clock size={24} /></div>
+          <div className="card-info">
+            <span className="label">Pendapatan Tertunda</span>
+            <h2 className="value">{formatRupiah(analysisStats.revenuePending)}</h2>
+            <span className="subtext">{analysisStats.ticketsPending} Tiket Menunggu Verifikasi</span>
+          </div>
+        </div>
+
+        <div className="analysis-card blue">
+          <div className="card-icon"><Tag size={24} /></div>
+          <div className="card-info">
+            <span className="label">Total Tiket Terjual</span>
+            <h2 className="value">{totalTickets} Tiket</h2>
+            <span className="subtext">Potensi Pendapatan: {formatRupiah(totalRevenue)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="analysis-details-grid">
+        {/* Column 1: Ticket Categories & Payment Methods */}
+        <div className="details-col-left">
+          {/* Ticket Categories Card */}
+          <div className="details-card-glass">
+            <h3>Kategori Tiket</h3>
+            <div className="category-stats-list">
+              {Object.entries(analysisStats.ticketCategories).map(([name, cat]) => {
+                const totalCatQty = cat.lunasQty + cat.pendingQty;
+                const percentLunas = totalTickets > 0 ? Math.round((cat.lunasQty / totalTickets) * 100) : 0;
+                
+                return (
+                  <div key={name} className="category-stat-item">
+                    <div className="item-header">
+                      <span className="name">{name}</span>
+                      <span className="qty">{cat.lunasQty} / {totalCatQty} Pcs (Lunas)</span>
+                    </div>
+                    <div className="progress-bar-container">
+                      <div className="progress-bar-fill" style={{ width: `${percentLunas}%`, background: name.includes('VIP') ? 'linear-gradient(90deg, #d97706, #f59e0b)' : 'linear-gradient(90deg, #7c3aed, #a78bfa)' }}></div>
+                    </div>
+                    <div className="item-footer">
+                      <span>Pendapatan: {formatRupiah(cat.lunasRev)}</span>
+                      {cat.pendingRev > 0 && <span className="pending-rev">Tertunda: {formatRupiah(cat.pendingRev)}</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Payment Methods Card */}
+          <div className="details-card-glass">
+            <h3>Metode Pembayaran (Lunas)</h3>
+            <div className="payment-stats-list">
+              {analysisStats.paymentMethods.length > 0 ? (
+                analysisStats.paymentMethods.map(([method, data]) => {
+                  const percent = totalTickets > 0 ? Math.round((data.qty / totalTickets) * 100) : 0;
+                  return (
+                    <div key={method} className="payment-stat-item">
+                      <div className="payment-header">
+                        <span className="method-name">{method}</span>
+                        <span className="method-qty">{data.qty} Peserta</span>
+                      </div>
+                      <div className="progress-bar-container mini">
+                        <div className="progress-bar-fill" style={{ width: `${percent}%`, background: 'linear-gradient(90deg, #059669, #10b981)' }}></div>
+                      </div>
+                      <div className="payment-rev-text">{formatRupiah(data.rev)}</div>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="no-data-text">Belum ada data pembayaran</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Column 2: Recent Transactions */}
+        <div className="details-col-right">
+          <div className="details-card-glass full-height">
+            <h3>Transaksi Terbaru</h3>
+            <div className="recent-table-container">
+              <table className="recent-table">
+                <thead>
+                  <tr>
+                    <th>Nama</th>
+                    <th>Tanggal</th>
+                    <th>Tiket</th>
+                    <th>Jumlah</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {analysisStats.recentTransactions.length > 0 ? (
+                    analysisStats.recentTransactions.map((tx, idx) => {
+                      const price = getTicketPrice(tx.jenis_tiket);
+                      const qty = getTicketQty(tx);
+                      const total = price * qty;
+                      const dateFormatted = tx.created_at 
+                        ? new Date(tx.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+                        : '-';
+                      
+                      return (
+                        <tr key={tx.barcode || idx}>
+                          <td className="tx-name" title={tx.nama_lengkap}>{tx.nama_lengkap}</td>
+                          <td>{dateFormatted}</td>
+                          <td><span className="category-tag small">{normalizeJenisTiket(tx.jenis_tiket)}</span></td>
+                          <td style={{ textAlign: 'center' }}>{qty}</td>
+                          <td className="tx-total">{formatRupiah(total)}</td>
+                          <td>
+                            <span className={`status-tag ${tx.validasi_bayar === 'SUDAH' ? 'approved' : 'pending'}`}>
+                              {tx.validasi_bayar === 'SUDAH' ? 'Lunas' : 'Belum'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>Belum ada transaksi</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const AdminDashboard: React.FC = () => {
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -43,6 +523,7 @@ const AdminDashboard: React.FC = () => {
   const [showScanner, setShowScanner] = useState(false);
   const [scanResult, setScanResult] = useState<{ success: boolean, message: string } | null>(null);
   const [activeFilter, setActiveFilter] = useState<'all' | 'verified' | 'pending' | 'attended' | 'wa_not_sent' | 'wa_sent'>('all');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'sales_analysis'>('dashboard');
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -370,8 +851,11 @@ const AdminDashboard: React.FC = () => {
         </div>
         
         <nav className="sidebar-nav">
-          <button className="nav-item active" title="Dashboard">
+          <button className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')} title="Dashboard">
             <LayoutDashboard size={20} /> <span>Dashboard</span>
+          </button>
+          <button className={`nav-item ${activeTab === 'sales_analysis' ? 'active' : ''}`} onClick={() => setActiveTab('sales_analysis')} title="Analisis Penjualan">
+            <Database size={20} /> <span>Analisis Penjualan</span>
           </button>
           <button className="nav-item" onClick={startScanner} title="Scan Tiket QR">
             <Camera size={20} /> <span>Scan Tiket</span>
@@ -412,6 +896,8 @@ const AdminDashboard: React.FC = () => {
         </header>
 
         <div className="scroll-area">
+          {activeTab === 'dashboard' ? (
+            <>
           {/* Stats Bar */}
           <section className="stats-section">
             <div className="stat-card-premium blue">
@@ -666,6 +1152,10 @@ const AdminDashboard: React.FC = () => {
                 Next
               </button>
             </div>
+          )}
+            </>
+          ) : (
+            <SalesAnalysis participants={participants} />
           )}
         </div>
       </main>
