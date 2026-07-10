@@ -8,11 +8,11 @@ export const formatTicketCode = (code: string) => {
 export const normalizeJenisTiket = (jenis: string) => {
   if (!jenis) return '';
   const upper = jenis.toUpperCase();
-  if (upper.includes('VIP')) {
-    return 'VIP Gold 185K';
-  }
   if (upper.includes('SILVER')) {
     return 'Silver 130K';
+  }
+  if (upper.includes('VIP')) {
+    return 'VIP Gold 185K';
   }
   // Fallback replace
   return jenis.replace(/200K?/gi, '185K');

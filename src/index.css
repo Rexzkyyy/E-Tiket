@@ -1216,6 +1216,7 @@ tbody tr:last-child td {
 .filter-pill.active.pending { background: linear-gradient(135deg, #d97706, #f59e0b); color: white; border-color: transparent; box-shadow: 0 6px 20px rgba(245,158,11,0.3); }
 .filter-pill.active.attended { background: linear-gradient(135deg, #7c3aed, #a78bfa); color: white; border-color: transparent; box-shadow: 0 6px 20px rgba(124,58,237,0.3); }
 .filter-pill.active.wa-not-sent { background: linear-gradient(135deg, #0284c7, #38bdf8); color: white; border-color: transparent; box-shadow: 0 6px 20px rgba(2,132,199,0.3); }
+.filter-pill.active.wa-sent { background: linear-gradient(135deg, #128c7e, #25d366); color: white; border-color: transparent; box-shadow: 0 6px 20px rgba(37,211,102,0.3); }
 
 .filter-pill.active .pill-count { background: rgba(255,255,255,0.25); color: white; }
 

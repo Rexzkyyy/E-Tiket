@@ -42,7 +42,7 @@ const AdminDashboard: React.FC = () => {
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
   const [showScanner, setShowScanner] = useState(false);
   const [scanResult, setScanResult] = useState<{ success: boolean, message: string } | null>(null);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'verified' | 'pending' | 'attended' | 'wa_not_sent'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'verified' | 'pending' | 'attended' | 'wa_not_sent' | 'wa_sent'>('all');
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -201,6 +201,7 @@ const AdminDashboard: React.FC = () => {
       bukti_transfer: (formData.get('bukti_transfer') as string) || null,
       nama_pengirim: (formData.get('nama_pengirim') as string) || null,
       harapan_event: (formData.get('harapan_event') as string) || null,
+      status_wa: (formData.get('status_wa') as string) || 'BELUM',
     };
 
     let result;
@@ -254,10 +255,36 @@ const AdminDashboard: React.FC = () => {
     }
   }, [fetchParticipants]);
 
+  const toggleWAStatus = useCallback(async (barcode: string, currentStatus?: string) => {
+    const newStatus = currentStatus === 'SUDAH' ? 'BELUM' : 'SUDAH';
+    const { error } = await supabase
+      .from('participants')
+      .update({ status_wa: newStatus })
+      .eq('barcode', barcode);
+
+    if (error) {
+      setScanResult({ success: false, message: 'Gagal memperbarui status WA!' });
+    } else {
+      setScanResult({ success: true, message: `Status WA diperbarui` });
+      fetchParticipants();
+    }
+    setTimeout(() => setScanResult(null), 3000);
+  }, [fetchParticipants]);
+
   const sendWhatsApp = useCallback(async (p: Participant) => {
     const ticketUrl = `${window.location.origin}/t/${p.barcode}`;
     const message = `Halo *${p.nama_lengkap}*,\n\nTerima kasih telah mendaftar. Berikut adalah E-Tiket Anda:\n\n*Nomor Tiket:* ${formatTicketCode(p.barcode)}\n*Jenis Tiket:* ${normalizeJenisTiket(p.jenis_tiket)}\n\n*Lihat E-Tiket Resmi:* \n${ticketUrl}\n\nMohon tunjukkan barcode di link tersebut kepada panitia saat registrasi ulang. Sampai jumpa di acara Jeda Sejenak Menguatkan Hati!`;
     window.open(`https://wa.me/${p.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+
+    if (p.status_wa !== 'SUDAH') {
+      const { error } = await supabase
+        .from('participants')
+        .update({ status_wa: 'SUDAH' })
+        .eq('barcode', p.barcode);
+      if (!error) {
+        fetchParticipants();
+      }
+    }
   }, [fetchParticipants]);
 
   const startScanner = useCallback(() => {
@@ -290,6 +317,7 @@ const AdminDashboard: React.FC = () => {
     pending: participants.filter(p => p.validasi_bayar === 'BELUM').length,
     attended: participants.filter(p => p.status_absen === 'SUDAH').length,
     waNotSent: participants.filter(p => !p.status_wa || p.status_wa !== 'SUDAH').length,
+    waSent: participants.filter(p => p.status_wa === 'SUDAH').length,
   }), [participants]);
 
   const filteredParticipants = useMemo(() => {
@@ -304,6 +332,8 @@ const AdminDashboard: React.FC = () => {
       result = result.filter(p => p.status_absen === 'SUDAH');
     } else if (activeFilter === 'wa_not_sent') {
       result = result.filter(p => !p.status_wa || p.status_wa !== 'SUDAH');
+    } else if (activeFilter === 'wa_sent') {
+      result = result.filter(p => p.status_wa === 'SUDAH');
     }
 
     // Then apply search
@@ -448,6 +478,12 @@ const AdminDashboard: React.FC = () => {
               >
                 <MessageSquareOff size={14} /> Belum Kirim WA <span className="pill-count">{stats.waNotSent}</span>
               </button>
+              <button
+                className={`filter-pill ${activeFilter === 'wa_sent' ? 'active wa-sent' : ''}`}
+                onClick={() => { setActiveFilter('wa_sent'); setCurrentPage(1); }}
+              >
+                <MessageCircle size={14} /> Sudah Kirim WA <span className="pill-count">{stats.waSent}</span>
+              </button>
             </div>
           </div>
 
@@ -485,6 +521,7 @@ const AdminDashboard: React.FC = () => {
                 <table>
                   <thead>
                     <tr>
+                      <th style={{ width: '60px', textAlign: 'center' }}>No.</th>
                       <th>Nama Peserta</th>
                       <th>Kategori</th>
                       <th>Status Bayar</th>
@@ -494,79 +531,117 @@ const AdminDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedParticipants.map((p, index) => (
-                      <tr key={p.id || `p-${index}`}>
-                        <td>
-                          <div className="cell-user">
-                            <div className="avatar-mini">{p.nama_lengkap.charAt(0)}</div>
-                            <div className="user-details">
-                              <span className="name">{p.nama_lengkap}</span>
-                              <span className="code">{formatTicketCode(p.barcode)}</span>
+                    {paginatedParticipants.map((p, index) => {
+                      const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
+                      return (
+                        <tr key={p.id || `p-${index}`}>
+                          <td style={{ textAlign: 'center', fontWeight: 'bold', color: '#6b7280' }}>{rowNumber}</td>
+                          <td>
+                            <div className="cell-user">
+                              <div className="avatar-mini">{p.nama_lengkap.charAt(0)}</div>
+                              <div className="user-details">
+                                <span className="name">{p.nama_lengkap}</span>
+                                <span className="code">{formatTicketCode(p.barcode)}</span>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td><span className="category-tag">{normalizeJenisTiket(p.jenis_tiket)}</span></td>
-                        <td>
-                          <span className={`status-tag ${p.validasi_bayar === 'SUDAH' ? 'approved' : 'pending'}`}>
-                            {p.validasi_bayar === 'SUDAH' ? 'Lunas' : 'Belum Lunas'}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={`status-tag ${p.status_absen === 'SUDAH' ? 'attended' : 'not-yet'}`}>
-                            {p.status_absen === 'SUDAH' ? 'Hadir' : 'Belum Hadir'}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={`status-tag ${p.status_wa === 'SUDAH' ? 'attended' : 'not-yet'}`}>
-                            {p.status_wa === 'SUDAH' ? 'Terkirim' : 'Belum Terkirim'}
-                          </span>
-                        </td>
-                         <td>
-                          <div className="row-actions">
-                            {p.validasi_bayar === 'BELUM' && (
-                              <button 
-                                className="action-circle success" 
-                                onClick={() => updateParticipantStatus(p.barcode, 'SUDAH')} 
-                                title="Set Lunas"
+                          </td>
+                          <td><span className="category-tag">{normalizeJenisTiket(p.jenis_tiket)}</span></td>
+                          <td>
+                            <span className={`status-tag ${p.validasi_bayar === 'SUDAH' ? 'approved' : 'pending'}`}>
+                              {p.validasi_bayar === 'SUDAH' ? 'Lunas' : 'Belum Lunas'}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`status-tag ${p.status_absen === 'SUDAH' ? 'attended' : 'not-yet'}`}>
+                              {p.status_absen === 'SUDAH' ? 'Hadir' : 'Belum Hadir'}
+                            </span>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'nowrap' }}>
+                              <input 
+                                type="checkbox" 
+                                checked={p.status_wa === 'SUDAH'} 
+                                onChange={() => toggleWAStatus(p.barcode, p.status_wa)}
+                                style={{ width: '16px', height: '16px', cursor: 'pointer', flexShrink: 0 }}
+                                title="Tandai Status WA Terkirim"
+                              />
+                              <span 
+                                className={`status-tag ${p.status_wa === 'SUDAH' ? 'attended' : 'not-yet'}`}
+                                onClick={() => toggleWAStatus(p.barcode, p.status_wa)}
+                                style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
                               >
-                                <CheckCircle size={14} />
-                              </button>
-                            )}
-                            <button className={`action-circle wa ${p.status_wa === 'SUDAH' ? 'sent' : ''}`} onClick={() => sendWhatsApp(p)} title={p.status_wa === 'SUDAH' ? 'Kirim Ulang WA' : 'Kirim WA'}><MessageCircle size={14} /></button>
-                            <button className="action-circle edit" onClick={() => { setEditingParticipant(p); setShowAddModal(true); }} title="Edit Data"><Edit size={14} /></button>
-                            <button className="action-circle view" onClick={() => window.open(`/t/${p.barcode}`, '_blank')} title="Lihat Tiket"><ExternalLink size={14} /></button>
-                            <button className="action-circle delete" onClick={() => deleteParticipant(p.barcode)} title="Hapus Data"><Trash2 size={14} /></button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                                {p.status_wa === 'SUDAH' ? 'Terkirim' : 'Belum Terkirim'}
+                              </span>
+                            </div>
+                          </td>
+                           <td>
+                            <div className="row-actions">
+                              {p.validasi_bayar === 'BELUM' && (
+                                <button 
+                                  className="action-circle success" 
+                                  onClick={() => updateParticipantStatus(p.barcode, 'SUDAH')} 
+                                  title="Set Lunas"
+                                >
+                                  <CheckCircle size={14} />
+                                </button>
+                              )}
+                              <button className={`action-circle wa ${p.status_wa === 'SUDAH' ? 'sent' : ''}`} onClick={() => sendWhatsApp(p)} title={p.status_wa === 'SUDAH' ? 'Kirim Ulang WA' : 'Kirim WA'}><MessageCircle size={14} /></button>
+                              <button className="action-circle edit" onClick={() => { setEditingParticipant(p); setShowAddModal(true); }} title="Edit Data"><Edit size={14} /></button>
+                              <button className="action-circle view" onClick={() => window.open(`/t/${p.barcode}`, '_blank')} title="Lihat Tiket"><ExternalLink size={14} /></button>
+                              <button className="action-circle delete" onClick={() => deleteParticipant(p.barcode)} title="Hapus Data"><Trash2 size={14} /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             ) : (
               <div className="participant-grid">
-                {paginatedParticipants.map((p, index) => (
-                  <div key={p.id || `g-${index}`} className="user-card-premium">
-                    <div className="card-top">
-                      <div className="card-avatar">{p.nama_lengkap.charAt(0)}</div>
-                      <div className="card-status-dot" style={{ background: p.validasi_bayar === 'SUDAH' ? '#10b981' : '#f59e0b' }}></div>
+                {paginatedParticipants.map((p, index) => {
+                  const cardNumber = (currentPage - 1) * itemsPerPage + index + 1;
+                  return (
+                    <div key={p.id || `g-${index}`} className="user-card-premium">
+                      <div className="card-top">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: '800', color: '#9ca3af' }}>#{cardNumber}</span>
+                          <div className="card-avatar">{p.nama_lengkap.charAt(0)}</div>
+                        </div>
+                        <div className="card-status-dot" style={{ background: p.validasi_bayar === 'SUDAH' ? '#10b981' : '#f59e0b' }}></div>
+                      </div>
+                      <div className="card-content">
+                        <h4>{p.nama_lengkap}</h4>
+                        <p className="p-category">{normalizeJenisTiket(p.jenis_tiket)}</p>
+                        <code className="p-code">{formatTicketCode(p.barcode)}</code>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '0.85rem' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={p.status_wa === 'SUDAH'} 
+                            onChange={() => toggleWAStatus(p.barcode, p.status_wa)}
+                            style={{ cursor: 'pointer', width: '14px', height: '14px' }}
+                            title="Tandai Status WA Terkirim"
+                          />
+                          <span 
+                            style={{ fontWeight: 500, color: p.status_wa === 'SUDAH' ? '#9d174d' : '#475569', cursor: 'pointer' }}
+                            onClick={() => toggleWAStatus(p.barcode, p.status_wa)}
+                          >
+                            WA: {p.status_wa === 'SUDAH' ? 'Terkirim' : 'Belum Terkirim'}
+                          </span>
+                        </div>
+                      </div>
+                       <div className="card-actions">
+                        {p.validasi_bayar === 'BELUM' && (
+                          <button onClick={() => updateParticipantStatus(p.barcode, 'SUDAH')} className="verify">Verifikasi</button>
+                        )}
+                        <button onClick={() => sendWhatsApp(p)} className="wa">
+                          {p.status_wa === 'SUDAH' ? 'Kirim Ulang WA' : 'Kirim WA'}
+                        </button>
+                        <button onClick={() => { setEditingParticipant(p); setShowAddModal(true); }}>Edit</button>
+                      </div>
                     </div>
-                    <div className="card-content">
-                      <h4>{p.nama_lengkap}</h4>
-                      <p className="p-category">{normalizeJenisTiket(p.jenis_tiket)}</p>
-                      <code className="p-code">{formatTicketCode(p.barcode)}</code>
-                    </div>
-                     <div className="card-actions">
-                      {p.validasi_bayar === 'BELUM' && (
-                        <button onClick={() => updateParticipantStatus(p.barcode, 'SUDAH')} className="verify">Verifikasi</button>
-                      )}
-                      <button onClick={() => sendWhatsApp(p)} className="wa">
-                        {p.status_wa === 'SUDAH' ? 'Kirim Ulang WA' : 'Kirim WA'}
-                      </button>
-                      <button onClick={() => { setEditingParticipant(p); setShowAddModal(true); }}>Edit</button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -676,6 +751,20 @@ const AdminDashboard: React.FC = () => {
                       <option value="BELUM">Belum Lunas</option>
                       <option value="SUDAH">Sudah Lunas</option>
                     </select>
+                  </div>
+                </div>
+
+                <div className="input-row">
+                  <div className="input-group">
+                    <label>Status Kirim WA</label>
+                    <select name="status_wa" defaultValue={editingParticipant?.status_wa || 'BELUM'}>
+                      <option value="BELUM">Belum Terkirim</option>
+                      <option value="SUDAH">Terkirim</option>
+                    </select>
+                  </div>
+                  <div className="input-group" style={{ visibility: 'hidden' }}>
+                    <label>Placeholder</label>
+                    <select><option>N/A</option></select>
                   </div>
                 </div>
                 <button type="submit" className="submit-btn">{editingParticipant ? 'Simpan Perubahan' : 'Tambah Peserta'}</button>
