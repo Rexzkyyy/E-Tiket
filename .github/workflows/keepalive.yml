@@ -42,7 +42,7 @@ jobs:
               const supabase = createClient(supabaseUrl, supabaseKey);
 
               // Melakukan ping ke Supabase dengan query ke tabel 'participants'
-              const { data, error } = await supabase.from('participants').select('id').limit(1);
+              const { data, error } = await supabase.from('participants').select('barcode').limit(1);
 
               if (error) throw error;
 
