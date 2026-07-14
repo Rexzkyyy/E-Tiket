@@ -1,0 +1,55 @@
+name: Ping Supabase to Prevent Pausing
+
+on:
+  schedule:
+    - cron: '0 9 * * 1,4' # Berjalan pada jam 9:00 AM UTC setiap Senin dan Kamis
+  workflow_dispatch: # Memungkinkan untuk dijalankan secara manual melalui UI GitHub
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Supabase Client
+        run: npm install @supabase/supabase-js
+
+      - name: Ping Supabase
+        env:
+          SUPABASE_URL: "https://tydfbrcdvzeggrlzabfq.supabase.co"
+          SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5ZGZicmNkdnplZ2dybHphYmZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTUyMDEsImV4cCI6MjA5MzAzMTIwMX0.75_AK06B7aGjIbZk_rG6KBgD6yqDHygPRYg_GHeMJ6o"
+        run: |
+          node -e "
+          (async () => {
+            try {
+              const { createClient } = require('@supabase/supabase-js');
+              
+              const supabaseUrl = process.env.SUPABASE_URL;
+              const supabaseKey = process.env.SUPABASE_KEY;
+              
+              if (!supabaseUrl || !supabaseKey) {
+                console.error('SUPABASE_URL atau SUPABASE_KEY tidak ditemukan di GitHub Secrets.');
+                process.exit(1);
+              }
+
+              const supabase = createClient(supabaseUrl, supabaseKey);
+
+              // Melakukan ping ke Supabase dengan query ke tabel 'participants'
+              const { data, error } = await supabase.from('participants').select('id').limit(1);
+
+              if (error) throw error;
+
+              console.log('Ping berhasil:', data);
+            } catch (err) {
+              console.error('Terjadi kesalahan saat ping Supabase:', err.message);
+              process.exit(1);
+            }
+          })();
+          "
