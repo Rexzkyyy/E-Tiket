@@ -40,9 +40,13 @@ interface SalesAnalysisProps {
 
 const SalesAnalysis: React.FC<SalesAnalysisProps> = ({ participants }) => {
   // Helper to parse price
-  const getTicketPrice = (jenis: string): number => {
+  const getTicketPrice = (rawJenis: string): number => {
+    const jenis = normalizeJenisTiket(rawJenis);
     if (!jenis) return 0;
     const upper = jenis.toUpperCase();
+    
+    if (upper.includes('100K') || upper.includes('PROMO')) return 100000;
+    if (upper.includes('50K') || upper.includes('MAHASISWA')) return 50000;
     if (upper.includes('SILVER')) return 130000;
     if (upper.includes('VIP')) return 185000;
     
