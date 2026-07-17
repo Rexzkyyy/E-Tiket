@@ -8,5 +8,6 @@ export interface Participant {
   status_absen: string;
   status_wa?: string;
   created_at?: string;
+  updated_at?: string;
   [key: string]: any;
 }
