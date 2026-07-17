@@ -606,10 +606,17 @@ const AdminDashboard: React.FC = () => {
                barcode = Math.floor(10000000 + Math.random() * 90000000).toString();
             }
 
+            let standardWa = wa.toString().trim();
+            if (standardWa.startsWith('08')) {
+              standardWa = '+62' + standardWa.substring(1);
+            } else if (standardWa.startsWith('628')) {
+              standardWa = '+' + standardWa;
+            }
+
             results.push({
               barcode: barcode.toString().trim(),
               nama_lengkap: participantName,
-              whatsapp: wa.toString().trim(),
+              whatsapp: standardWa,
               jenis_tiket: kategori.toString().trim(),
               validasi_bayar: 'BELUM',
               status_absen: 'BELUM',
@@ -628,31 +635,36 @@ const AdminDashboard: React.FC = () => {
           return results;
         });
 
-        // Cek data lama di database
-        const { data: existingData, error: fetchError } = await supabase.from('participants').select('nama_lengkap, whatsapp, jenis_tiket');
+        // Cek data lama di database untuk pencocokan (Upsert)
+        const { data: existingData, error: fetchError } = await supabase.from('participants').select('*');
         if (fetchError) throw fetchError;
 
-        // Filter data baru yang belum ada di database
-        const newParticipants = mapped.filter(newP => {
-          return !existingData?.some(extP => 
-            extP.nama_lengkap.toLowerCase() === newP.nama_lengkap.toLowerCase() && 
-            extP.whatsapp === newP.whatsapp && 
-            extP.jenis_tiket.toLowerCase() === newP.jenis_tiket.toLowerCase()
-          );
+        const upsertPayload = mapped.map(newP => {
+          // Cari apakah nama lengkap sudah ada di database (abaikan besar/kecil huruf)
+          const match = existingData?.find(extP => extP.nama_lengkap.toLowerCase() === newP.nama_lengkap.toLowerCase());
+          
+          if (match) {
+             // Jika sudah ada, gunakan barcode lama dan pertahankan status yang sudah berjalan
+             return {
+               ...newP,
+               barcode: match.barcode,
+               validasi_bayar: match.validasi_bayar,
+               status_absen: match.status_absen,
+               waktu_absen: match.waktu_absen,
+               status_wa: match.status_wa
+             };
+          }
+          return newP;
         });
 
-        if (newParticipants.length === 0) {
-          setScanResult({ success: true, message: 'Data Excel sudah ada semua di sistem. Tidak ada data baru yang ditambahkan.' });
-          return; // finally block will clear the message later
-        }
-
-        const { error } = await supabase.from('participants').insert(newParticipants);
+        // Eksekusi Upsert (Update jika barcode sudah ada, Insert jika barcode baru)
+        const { error } = await supabase.from('participants').upsert(upsertPayload, { onConflict: 'barcode' });
         
         if (error) {
-          console.error("Supabase Insert Error:", error);
-          setScanResult({ success: false, message: `Gagal: ${error.message} (Detail: ${error.details || ''})` });
+          console.error("Supabase Upsert Error:", error);
+          setScanResult({ success: false, message: `Gagal memproses Excel: ${error.message} (Detail: ${error.details || ''})` });
         } else {
-          setScanResult({ success: true, message: `Berhasil menambah ${newParticipants.length} data baru. (${mapped.length - newParticipants.length} data lama dilewati)` });
+          setScanResult({ success: true, message: `Berhasil memproses dan sinkronisasi ${upsertPayload.length} data dari Excel.` });
           fetchParticipants();
         }
       } catch (err: any) {

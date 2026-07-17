@@ -8,6 +8,15 @@ export const formatTicketCode = (code: string) => {
 export const normalizeJenisTiket = (jenis: string) => {
   if (!jenis) return '';
   const upper = jenis.toUpperCase();
+  
+  if (upper.includes('DISKON 100K') || upper.includes('(DISKON 100K)') || upper.includes('PROMO')) {
+    return 'Silver Diskon 100k';
+  }
+  
+  if (upper.includes('MAHASISWA') || upper.includes('DISKON 50K')) {
+    return 'Silver Diskon 50K';
+  }
+
   if (upper.includes('SILVER')) {
     return 'Silver 130K';
   }
