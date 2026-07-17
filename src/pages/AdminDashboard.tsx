@@ -639,11 +639,16 @@ const AdminDashboard: React.FC = () => {
         const { data: existingData, error: fetchError } = await supabase.from('participants').select('*');
         if (fetchError) throw fetchError;
 
+        const availableExisting = [...(existingData || [])];
         const upsertPayload = mapped.map(newP => {
           // Cari apakah nama lengkap sudah ada di database (abaikan besar/kecil huruf)
-          const match = existingData?.find(extP => extP.nama_lengkap.toLowerCase() === newP.nama_lengkap.toLowerCase());
+          const matchIndex = availableExisting.findIndex(extP => extP.nama_lengkap.toLowerCase() === newP.nama_lengkap.toLowerCase());
           
-          if (match) {
+          if (matchIndex !== -1) {
+             const match = availableExisting[matchIndex];
+             // Hapus dari pool agar tidak terduplikasi jika ada nama yang sama persis lebih dari 1 di Excel
+             availableExisting.splice(matchIndex, 1);
+
              // Jika sudah ada, gunakan barcode lama dan pertahankan status yang sudah berjalan
              return {
                ...newP,
