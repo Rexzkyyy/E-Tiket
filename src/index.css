@@ -135,15 +135,15 @@ body {
 }
 
 .btn-secondary {
-  background: var(--secondary);
+  background: #6b21a8;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(244, 114, 182, 0.3);
+  box-shadow: 0 4px 12px rgba(107, 33, 168, 0.3);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #db2777;
+  background: #581c87;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(244, 114, 182, 0.4);
+  box-shadow: 0 6px 20px rgba(107, 33, 168, 0.4);
 }
 
 .btn-ghost {

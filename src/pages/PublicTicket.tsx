@@ -49,13 +49,13 @@ const PublicTicket: React.FC = () => {
     setIsDownloading(true);
     try {
       const canvas = await html2canvas(ticketRef.current, {
-        scale: 3, // High quality
+        scale: 2, // Safe scale to prevent canvas size limits
         useCORS: true,
         backgroundColor: '#ffffff',
-        logging: false,
+        logging: true,
       });
 
-      const image = canvas.toDataURL('image/png', 1.0);
+      const image = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.download = `Ticket-${participant?.nama_lengkap || 'Download'}-${participant?.barcode || ''}.png`;
       link.href = image;
@@ -133,8 +133,8 @@ const PublicTicket: React.FC = () => {
             <img src="/teh-inan-speaking.png" alt="Ghinan Rhinda" />
           </div>
           <div className="hero-text">
-            <span className="event-date">1 AGUSTUS 2026 • HOTEL AHTAYA KENDARI</span>
-            <h1>JEDA SEJENAK</h1>
+            <span className="event-date">1 AGUSTUS 2026 • HOTEL ATHAYA KENDARI</span>
+            <h1>JEDA SEJENAK MENGUATKAN HATI</h1>
             <p>Bersama Ghinan Rhinda, S.Sos., CH., CHt., CSHP., CMHFA</p>
           </div>
         </div>
@@ -155,7 +155,7 @@ const PublicTicket: React.FC = () => {
           <div className="ticket-main-content">
             {/* Left Side: Visual Flyer */}
             <div className="visual-flyer-side">
-              <img src="/poster_new.png" alt="Event Flyer" className="flyer-img" />
+              <img src="/NewTiketBaru.jpeg" alt="Event Flyer" className="flyer-img" />
             </div>
 
             {/* Right Side: THE EXACT PORTRAIT STUB */}
@@ -173,7 +173,7 @@ const PublicTicket: React.FC = () => {
 
               {/* Title & Tagline */}
               <div className="stub-titles">
-                <h2 className="title-serif">Jeda Sejenak</h2>
+                <h2 className="title-serif">Jeda Sejenak Menguatkan Hati</h2>
                 <p className="tagline-italic">"Sesi Curhat, Sharing, Healing, Doa dan Muhasabah"</p>
               </div>
 
@@ -192,11 +192,11 @@ const PublicTicket: React.FC = () => {
                 </div>
                 <div className="s-row">
                   <span className="s-label">WAKTU</span>
-                  <span className="s-val">08.00 - 11.30</span>
+                  <span className="s-val">07.00 - 11.30</span>
                 </div>
                 <div className="s-row">
                   <span className="s-label">LOKASI</span>
-                  <span className="s-val">Hotel Ahtaya Kendari</span>
+                  <span className="s-val">Hotel Athaya Kendari</span>
                 </div>
                 <div className="s-row">
                   <span className="s-label">KATEGORI</span>
