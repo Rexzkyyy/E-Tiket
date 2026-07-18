@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import {
   Upload,
@@ -26,7 +27,8 @@ import {
   Tag,
   FileDown,
   Filter,
-  MessageSquareOff
+  MessageSquareOff,
+  LogOut
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { formatTicketCode, normalizeJenisTiket } from '../utils';
@@ -518,6 +520,7 @@ const SalesAnalysis: React.FC<SalesAnalysisProps> = ({ participants }) => {
 };
 
 const AdminDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -910,9 +913,31 @@ const AdminDashboard: React.FC = () => {
               }}
             />
           </div>
-          <div className="header-profile">
+          <div className="header-profile" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <span>Admin Panitia</span>
             <div className="admin-avatar">A</div>
+            <button 
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate('/login');
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                background: '#fee2e2',
+                color: '#ef4444',
+                border: 'none',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '0.85rem'
+              }}
+              title="Keluar"
+            >
+              <LogOut size={16} /> Keluar
+            </button>
           </div>
         </header>
 

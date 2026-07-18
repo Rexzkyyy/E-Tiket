@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AdminDashboard from './pages/AdminDashboard';
 import PublicTicket from './pages/PublicTicket';
+import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App: React.FC = () => {
   return (
@@ -10,10 +12,17 @@ const App: React.FC = () => {
         {/* Halaman Publik untuk Pengunjung */}
         <Route path="/t/:barcode" element={<PublicTicket />} />
         
-        {/* Halaman Khusus Admin/Panitia */}
-        <Route path="/admin" element={<AdminDashboard />} />
+        {/* Halaman Login */}
+        <Route path="/login" element={<Login />} />
         
-        {/* Redirect root ke admin atau tampilkan halaman landing jika ada */}
+        {/* Halaman Khusus Admin/Panitia */}
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        
+        {/* Redirect root ke admin (yang sekarang diproteksi) */}
         <Route path="/" element={<Navigate to="/admin" replace />} />
         
         {/* Catch all - 404 */}
