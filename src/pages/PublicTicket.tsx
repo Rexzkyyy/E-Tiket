@@ -133,7 +133,7 @@ const PublicTicket: React.FC = () => {
             <img src="/teh-inan-speaking.png" alt="Ghinan Rhinda" />
           </div>
           <div className="hero-text">
-            <span className="event-date">1 AGUSTUS 2026 • HOTEL ZAHRA</span>
+            <span className="event-date">1 AGUSTUS 2026 • HOTEL AHTAYA KENDARI</span>
             <h1>JEDA SEJENAK</h1>
             <p>Bersama Ghinan Rhinda, S.Sos., CH., CHt., CSHP., CMHFA</p>
           </div>
@@ -196,7 +196,7 @@ const PublicTicket: React.FC = () => {
                 </div>
                 <div className="s-row">
                   <span className="s-label">LOKASI</span>
-                  <span className="s-val">Hotel Zahra, Kendari</span>
+                  <span className="s-val">Hotel Ahtaya Kendari</span>
                 </div>
                 <div className="s-row">
                   <span className="s-label">KATEGORI</span>
