@@ -113,8 +113,10 @@ const PublicTicket: React.FC = () => {
         <div className="card error-card">
           <Info size={48} color="#ef4444" />
           <h2>Oops!</h2>
-          <p>{error || 'Tiket tidak valid.'}</p>
-          <a href="/" className="btn btn-primary">Kembali ke Beranda</a>
+          <p>{error || 'Tiket tidak valid atau tidak ditemukan.'}</p>
+          <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+            Silakan hubungi panitia jika Anda merasa ini adalah sebuah kesalahan.
+          </p>
         </div>
       </div>
     );
