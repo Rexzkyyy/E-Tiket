@@ -63,8 +63,10 @@ const SalesAnalysis: React.FC<SalesAnalysisProps> = ({ participants }) => {
   };
 
   const getTicketQty = (p: Participant): number => {
-    const qty = Number(p.jumlah_tiket);
-    return isNaN(qty) || qty <= 0 ? 1 : qty;
+    // Karena sistem sudah memecah tiket borongan menjadi baris individual saat import,
+    // 1 baris data di tabel = 1 tiket fisik (1 barcode). 
+    // Menggunakan p.jumlah_tiket akan menyebabkan penghitungan ganda (double count).
+    return 1;
   };
 
   // Stats Calculation
@@ -532,6 +534,7 @@ const AdminDashboard: React.FC = () => {
   const [showScanner, setShowScanner] = useState(false);
   const [scanResult, setScanResult] = useState<{ success: boolean, message: string } | null>(null);
   const [activeFilter, setActiveFilter] = useState<'all' | 'verified' | 'pending' | 'attended' | 'wa_not_sent' | 'wa_sent'>('all');
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<'dashboard' | 'sales_analysis'>('dashboard');
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -830,7 +833,12 @@ const AdminDashboard: React.FC = () => {
   const filteredParticipants = useMemo(() => {
     let result = participants;
 
-    // Apply active filter first
+    // Apply category filter first
+    if (activeCategoryFilter !== 'all') {
+      result = result.filter(p => normalizeJenisTiket(p.jenis_tiket) === activeCategoryFilter);
+    }
+
+    // Apply active filter
     if (activeFilter === 'verified') {
       result = result.filter(p => p.validasi_bayar === 'SUDAH');
     } else if (activeFilter === 'pending') {
@@ -852,7 +860,7 @@ const AdminDashboard: React.FC = () => {
     }
 
     return result;
-  }, [participants, searchTerm, activeFilter]);
+  }, [participants, searchTerm, activeFilter, activeCategoryFilter]);
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredParticipants.length / itemsPerPage);
@@ -1023,8 +1031,20 @@ const AdminDashboard: React.FC = () => {
 
           {/* Table/Grid Actions */}
           <div className="content-toolbar">
-            <div className="toolbar-left">
+            <div className="toolbar-left" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
               <h3>Daftar Peserta <span className="count-tag">{filteredParticipants.length}</span></h3>
+              <select 
+                className="filter-select-premium"
+                value={activeCategoryFilter}
+                onChange={(e) => { setActiveCategoryFilter(e.target.value); setCurrentPage(1); }}
+                title="Filter berdasarkan kategori tiket"
+              >
+                <option value="all">Semua Kategori Tiket</option>
+                <option value="VIP Gold 185K">VIP Gold 185K</option>
+                <option value="Silver 130K">Silver 130K</option>
+                <option value="SILVER DISKON 50K">SILVER DISKON 50K</option>
+                <option value="Silver Diskon 100k">Silver Diskon 100k</option>
+              </select>
             </div>
             <div className="toolbar-right">
               <div className="view-switcher">
