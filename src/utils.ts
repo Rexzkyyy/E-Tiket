@@ -13,8 +13,8 @@ export const normalizeJenisTiket = (jenis: string) => {
     return 'Silver Diskon 100k';
   }
   
-  if (upper.includes('MAHASISWA') || upper.includes('DISKON 50K')) {
-    return 'Silver Diskon 50K';
+  if (upper.includes('MAHASISWA') || upper.includes('DISKON 50K') || upper.includes('SPESIAL MAHASISWA')) {
+    return 'SILVER DISKON 50K';
   }
 
   if (upper.includes('SILVER')) {

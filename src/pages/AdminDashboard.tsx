@@ -77,6 +77,8 @@ const SalesAnalysis: React.FC<SalesAnalysisProps> = ({ participants }) => {
     const ticketCategories: Record<string, { lunasQty: number; pendingQty: number; lunasRev: number; pendingRev: number }> = {
       'VIP Gold 185K': { lunasQty: 0, pendingQty: 0, lunasRev: 0, pendingRev: 0 },
       'Silver 130K': { lunasQty: 0, pendingQty: 0, lunasRev: 0, pendingRev: 0 },
+      'SILVER DISKON 50K': { lunasQty: 0, pendingQty: 0, lunasRev: 0, pendingRev: 0 },
+      'Silver Diskon 100k': { lunasQty: 0, pendingQty: 0, lunasRev: 0, pendingRev: 0 },
     };
 
     const paymentMethods: Record<string, { qty: number; rev: number }> = {};
@@ -1279,6 +1281,8 @@ const AdminDashboard: React.FC = () => {
                     <select name="jenis_tiket" defaultValue={editingParticipant?.jenis_tiket || 'VIP Gold 185K'}>
                       <option value="VIP Gold 185K">VIP Gold 185K</option>
                       <option value="Silver 130K">Silver 130K</option>
+                      <option value="Spesial Mahasiswa">Spesial Mahasiswa</option>
+                      <option value="Silver 130k (Diskon 100k)">Silver 130k (Diskon 100k)</option>
                     </select>
                   </div>
                   <div className="input-group">
