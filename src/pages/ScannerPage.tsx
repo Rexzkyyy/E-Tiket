@@ -4,7 +4,16 @@ import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { ArrowLeft, Camera, CheckCircle, X, Image as ImageIcon, RefreshCcw, Keyboard } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
-type ScanResult = { success: boolean; message: string; name?: string } | null;
+type ScanResult = {
+  success: boolean;
+  message: string;
+  name?: string;
+  jenis_kelamin?: string | null;
+  usia?: string | null;
+  alamat?: string | null;
+  jenis_tiket?: string | null;
+  waktu_absen?: string | null;
+} | null;
 
 const ScannerPage: React.FC = () => {
   const navigate = useNavigate();
@@ -42,24 +51,33 @@ const ScannerPage: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('participants')
-        .select('nama_lengkap, validasi_bayar, status_absen')
+        .select('nama_lengkap, validasi_bayar, status_absen, jenis_kelamin, usia, alamat, jenis_tiket')
         .eq('barcode', decodedText.trim())
         .single();
+
+      const extraInfo = {
+        jenis_kelamin: data?.jenis_kelamin || null,
+        usia: data?.usia || null,
+        alamat: data?.alamat || null,
+        jenis_tiket: data?.jenis_tiket || null,
+      };
 
       if (error || !data) {
         setScanResult({ success: false, message: 'Tiket Tidak Valid / Tidak Ditemukan!' });
       } else if (data.status_absen === 'SUDAH') {
-        // Already checked in - warn panitia
-        setScanResult({ success: false, message: `Peserta ini SUDAH check-in sebelumnya!`, name: data.nama_lengkap });
+        setScanResult({ success: false, message: 'Peserta ini SUDAH check-in sebelumnya!', name: data.nama_lengkap, ...extraInfo });
       } else if (data.validasi_bayar !== 'SUDAH') {
-        setScanResult({ success: false, message: 'Pembayaran Belum Diverifikasi!', name: data.nama_lengkap });
+        setScanResult({ success: false, message: 'Pembayaran Belum Diverifikasi!', name: data.nama_lengkap, ...extraInfo });
       } else {
-        // Success: update status
+        const waktuCheckin = new Date().toISOString();
         await supabase
           .from('participants')
-          .update({ status_absen: 'SUDAH' })
+          .update({ 
+            status_absen: 'SUDAH',
+            waktu_absen: waktuCheckin,
+          })
           .eq('barcode', decodedText.trim());
-        setScanResult({ success: true, message: 'Check-in Berhasil!', name: data.nama_lengkap });
+        setScanResult({ success: true, message: 'Check-in Berhasil!', name: data.nama_lengkap, waktu_absen: waktuCheckin, ...extraInfo });
       }
     } catch (_) {
       setScanResult({ success: false, message: 'Terjadi kesalahan jaringan. Coba lagi.' });
@@ -408,48 +426,123 @@ const ScannerPage: React.FC = () => {
         {/* ── Scan Result Overlay ── */}
         {scanResult && (
           <div style={{
-            position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.87)', zIndex: 40,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '28px',
+            position: 'absolute', inset: 0,
+            background: 'rgba(0,0,0,0.88)',
+            backdropFilter: 'blur(6px)',
+            zIndex: 40,
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            padding: '20px',
+            overflowY: 'auto',
           }}>
             <div style={{
-              background: scanResult.success
-                ? 'linear-gradient(135deg, #14532d, #166534)'
-                : 'linear-gradient(135deg, #7f1d1d, #991b1b)',
-              color: 'white', padding: '32px 28px', borderRadius: '28px',
-              textAlign: 'center', width: '100%', maxWidth: '360px',
-              boxShadow: scanResult.success ? '0 20px 60px rgba(22,101,52,0.5)' : '0 20px 60px rgba(153,27,27,0.5)',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px',
+              width: '100%', maxWidth: '400px',
+              borderRadius: '28px', overflow: 'hidden',
+              boxShadow: scanResult.success
+                ? '0 24px 60px rgba(16,185,129,0.35)'
+                : '0 24px 60px rgba(239,68,68,0.35)',
             }}>
-              <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {scanResult.success
-                  ? <CheckCircle size={42} color="#4ade80" />
-                  : <X size={42} color="#f87171" />
-                }
-              </div>
-              <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>
-                {scanResult.success ? '✅ Check-in Berhasil!' : '❌ Gagal'}
-              </h3>
-              {scanResult.name && (
-                <p style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, opacity: 0.95 }}>
-                  {scanResult.name}
-                </p>
-              )}
-              <p style={{ margin: 0, fontSize: '0.9rem', opacity: 0.75 }}>
-                {scanResult.message}
-              </p>
 
-              <button
-                onClick={resumeScanning}
-                style={{
-                  marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px',
-                  background: 'rgba(255,255,255,0.95)', color: scanResult.success ? '#166534' : '#991b1b',
-                  border: 'none', padding: '14px 0', borderRadius: '50px',
-                  fontWeight: 700, cursor: 'pointer', width: '100%', justifyContent: 'center',
-                  fontSize: '1rem',
-                }}
-              >
-                <RefreshCcw size={18} /> Lanjut Scan
-              </button>
+              {/* Header card */}
+              <div style={{
+                background: scanResult.success
+                  ? 'linear-gradient(135deg, #065f46, #059669)'
+                  : 'linear-gradient(135deg, #7f1d1d, #dc2626)',
+                padding: '28px 24px 20px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+                textAlign: 'center',
+              }}>
+                <div style={{
+                  width: '64px', height: '64px', borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.18)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: '4px',
+                }}>
+                  {scanResult.success
+                    ? <CheckCircle size={38} color="#6ee7b7" />
+                    : <X size={38} color="#fca5a5" />
+                  }
+                </div>
+                <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  {scanResult.success ? 'Check-in Berhasil' : 'Gagal'}
+                </p>
+                <h3 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: 'white', lineHeight: 1.2 }}>
+                  {scanResult.name || '—'}
+                </h3>
+                {scanResult.jenis_tiket && (
+                  <span style={{
+                    background: 'rgba(255,255,255,0.2)', color: 'white',
+                    padding: '4px 14px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 600,
+                  }}>
+                    🎫 {scanResult.jenis_tiket}
+                  </span>
+                )}
+              </div>
+
+              {/* Info grid */}
+              <div style={{ background: 'white', padding: '20px 20px 0' }}>
+                {/* Status message */}
+                <div style={{
+                  background: scanResult.success ? '#f0fdf4' : '#fef2f2',
+                  border: `1px solid ${scanResult.success ? '#bbf7d0' : '#fecaca'}`,
+                  borderRadius: '12px', padding: '10px 14px',
+                  marginBottom: '16px', textAlign: 'center',
+                  fontSize: '0.88rem', fontWeight: 600,
+                  color: scanResult.success ? '#166534' : '#991b1b',
+                }}>
+                  {scanResult.message}
+                </div>
+
+                {/* Detail rows */}
+                {[
+                  { label: 'Jenis Kelamin', icon: '👤', value: scanResult.jenis_kelamin },
+                  { label: 'Usia', icon: '🎂', value: scanResult.usia ? `${scanResult.usia} tahun` : null },
+                  { label: 'Domisili', icon: '📍', value: scanResult.alamat },
+                  ...(scanResult.success && scanResult.waktu_absen ? [{
+                    label: 'Waktu Check-in',
+                    icon: '🕐',
+                    value: new Date(scanResult.waktu_absen).toLocaleString('id-ID', {
+                      dateStyle: 'medium', timeStyle: 'short'
+                    }),
+                  }] : []),
+                ].map(({ label, icon, value }) => (
+                  <div key={label} style={{
+                    display: 'flex', alignItems: 'flex-start', gap: '12px',
+                    padding: '12px 0',
+                    borderBottom: '1px solid #f1f5f9',
+                  }}>
+                    <span style={{ fontSize: '1.1rem', marginTop: '1px' }}>{icon}</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
+                      <p style={{
+                        margin: '3px 0 0', fontSize: '0.95rem', fontWeight: 500,
+                        color: value ? '#0f172a' : '#cbd5e1',
+                        fontStyle: value ? 'normal' : 'italic',
+                      }}>
+                        {value || 'Tidak Tercantum'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action button */}
+              <div style={{ background: 'white', padding: '16px 20px 20px' }}>
+                <button
+                  onClick={resumeScanning}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    background: scanResult.success ? '#059669' : '#dc2626',
+                    color: 'white', border: 'none', padding: '15px',
+                    borderRadius: '14px', fontWeight: 700, cursor: 'pointer',
+                    fontSize: '1rem', boxShadow: scanResult.success
+                      ? '0 6px 20px rgba(5,150,105,0.35)'
+                      : '0 6px 20px rgba(220,38,38,0.35)',
+                  }}
+                >
+                  <RefreshCcw size={18} /> Lanjut Scan
+                </button>
+              </div>
             </div>
           </div>
         )}

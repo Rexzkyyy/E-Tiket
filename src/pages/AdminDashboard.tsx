@@ -1055,6 +1055,9 @@ const AdminDashboard: React.FC = () => {
                       <th>Kategori</th>
                       <th>Status Bayar</th>
                       <th>Status Hadir</th>
+                      {activeFilter === 'attended' && (
+                        <th style={{ whiteSpace: 'nowrap' }}>🕐 Waktu Hadir</th>
+                      )}
                       <th>Status WA</th>
                       <th>Aksi</th>
                     </tr>
@@ -1085,6 +1088,17 @@ const AdminDashboard: React.FC = () => {
                               {p.status_absen === 'SUDAH' ? 'Hadir' : 'Belum Hadir'}
                             </span>
                           </td>
+                          {activeFilter === 'attended' && (
+                            <td style={{ whiteSpace: 'nowrap', fontSize: '0.82rem', color: '#475569' }}>
+                              {p.waktu_absen
+                                ? new Date(p.waktu_absen).toLocaleString('id-ID', {
+                                    day: '2-digit', month: 'short', year: 'numeric',
+                                    hour: '2-digit', minute: '2-digit'
+                                  })
+                                : <span style={{ color: '#cbd5e1', fontStyle: 'italic' }}>—</span>
+                              }
+                            </td>
+                          )}
                           <td>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'nowrap' }}>
                               <input 
