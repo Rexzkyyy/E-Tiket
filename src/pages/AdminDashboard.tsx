@@ -854,7 +854,7 @@ const AdminDashboard: React.FC = () => {
             aspectRatio: 1.0,
             disableFlip: false,
             experimentalFeatures: { useBarCodeDetectorIfSupported: true },
-          },
+          } as any,
           onScanSuccess,
           () => {} // ignore frame errors
         );
@@ -872,7 +872,7 @@ const AdminDashboard: React.FC = () => {
                 aspectRatio: 1.0,
                 disableFlip: false,
                 experimentalFeatures: { useBarCodeDetectorIfSupported: true },
-              },
+              } as any,
               onScanSuccess,
               () => {}
             );
