@@ -1721,11 +1721,34 @@ tbody tr:last-child td {
 
 #reader {
   width: 100% !important;
+  height: 100% !important;
   border-radius: 0;
   overflow: hidden;
   margin: 0 !important;
   border: none !important;
+  background: #0f172a;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#reader video {
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#reader__scan_region {
+  height: 100% !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   background: #000;
+  overflow: hidden;
+}
+
+#reader__dashboard_section_csr span {
+  color: white !important;
 }
 
 #reader button {

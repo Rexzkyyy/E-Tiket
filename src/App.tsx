@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import AdminDashboard from './pages/AdminDashboard';
 import PublicTicket from './pages/PublicTicket';
 import Login from './pages/Login';
+import ScannerPage from './pages/ScannerPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const App: React.FC = () => {
@@ -19,6 +20,13 @@ const App: React.FC = () => {
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        
+        {/* Halaman Scanner Khusus */}
+        <Route path="/admin/scan" element={
+          <ProtectedRoute>
+            <ScannerPage />
           </ProtectedRoute>
         } />
         
