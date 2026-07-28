@@ -33,7 +33,7 @@ import {
 import { supabase } from '../supabaseClient';
 import { formatTicketCode, normalizeJenisTiket } from '../utils';
 import { Participant } from '../types';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { jsPDF } from 'jspdf';
 
 interface SalesAnalysisProps {
@@ -797,29 +797,97 @@ const AdminDashboard: React.FC = () => {
     }
   }, [fetchParticipants]);
 
+  const stopScanner = useCallback(async (scanner: Html5Qrcode) => {
+    try {
+      if (scanner.isScanning) {
+        await scanner.stop();
+      }
+      scanner.clear();
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
   const startScanner = useCallback(() => {
     setShowScanner(true);
-    setTimeout(() => {
-      const scanner = new Html5QrcodeScanner("reader", { fps: 15, qrbox: 250 }, false);
-      scanner.render(async (decodedText) => {
+    setTimeout(async () => {
+      // Adaptive qrbox: 80% of min(width, height) or max 300px
+      const minDim = Math.min(window.innerWidth, window.innerHeight);
+      const qrboxSize = Math.min(Math.floor(minDim * 0.75), 300);
+
+      const html5Qrcode = new Html5Qrcode("reader", {
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.QR_CODE,
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+        ],
+        verbose: false,
+      });
+
+      const onScanSuccess = async (decodedText: string) => {
+        await stopScanner(html5Qrcode);
         const { data } = await supabase.from('participants').select('*').eq('barcode', decodedText).single();
         if (data) {
           if (data.validasi_bayar === 'SUDAH') {
             await supabase.from('participants').update({ status_absen: 'SUDAH' }).eq('barcode', decodedText);
-            setScanResult({ success: true, message: `Check-in Berhasil: ${data.nama_lengkap}` });
+            setScanResult({ success: true, message: `✅ Check-in Berhasil: ${data.nama_lengkap}` });
             fetchParticipants();
           } else {
-            setScanResult({ success: false, message: 'Pembayaran Belum Diverifikasi!' });
+            setScanResult({ success: false, message: `⚠️ Pembayaran Belum Diverifikasi! (${data.nama_lengkap})` });
           }
         } else {
-          setScanResult({ success: false, message: 'Tiket Tidak Valid!' });
+          setScanResult({ success: false, message: '❌ Tiket Tidak Valid / Tidak Ditemukan!' });
         }
-        scanner.clear();
         setShowScanner(false);
-        setTimeout(() => setScanResult(null), 3000);
-      }, () => {});
-    }, 100);
-  }, [fetchParticipants]);
+        setTimeout(() => setScanResult(null), 4000);
+      };
+
+      try {
+        // Prefer environment-facing (rear) camera, fallback to any
+        await html5Qrcode.start(
+          { facingMode: { ideal: 'environment' } },
+          {
+            fps: 30,
+            qrbox: { width: qrboxSize, height: qrboxSize },
+            aspectRatio: 1.0,
+            disableFlip: false,
+            experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+          },
+          onScanSuccess,
+          () => {} // ignore frame errors
+        );
+      } catch {
+        // Fallback: try any available camera
+        try {
+          const devices = await Html5Qrcode.getCameras();
+          if (devices && devices.length > 0) {
+            const camId = devices[devices.length - 1].id; // prefer last = rear
+            await html5Qrcode.start(
+              camId,
+              {
+                fps: 30,
+                qrbox: { width: qrboxSize, height: qrboxSize },
+                aspectRatio: 1.0,
+                disableFlip: false,
+                experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+              },
+              onScanSuccess,
+              () => {}
+            );
+          }
+        } catch (err2) {
+          setScanResult({ success: false, message: 'Kamera tidak dapat diakses. Pastikan izin kamera sudah diberikan.' });
+          setShowScanner(false);
+          setTimeout(() => setScanResult(null), 4000);
+        }
+      }
+
+      // Save scanner ref for cleanup when modal is closed
+      (window as any).__activeScanner = html5Qrcode;
+    }, 200);
+  }, [fetchParticipants, stopScanner]);
 
   const stats = useMemo(() => ({
     total: participants.length,
@@ -1337,11 +1405,36 @@ const AdminDashboard: React.FC = () => {
           <div className="modal-overlay-glass">
             <div className="scanner-container">
               <div className="scanner-header">
-                <h3>Scan Barcode Peserta</h3>
-                <button onClick={() => setShowScanner(false)} className="close-btn"><X /></button>
+                <div className="scanner-title">
+                  <Camera size={22} className="scanner-title-icon" />
+                  <h3>Scan Barcode Peserta</h3>
+                </div>
+                <button
+                  onClick={async () => {
+                    const sc = (window as any).__activeScanner;
+                    if (sc) {
+                      try { if (sc.isScanning) await sc.stop(); sc.clear(); } catch {}
+                      delete (window as any).__activeScanner;
+                    }
+                    setShowScanner(false);
+                  }}
+                  className="close-btn"
+                >
+                  <X size={18} />
+                </button>
               </div>
-              <div id="reader"></div>
-              <p className="scanner-hint">Arahkan kamera ke barcode pada tiket peserta</p>
+              <div className="scanner-viewport">
+                <div id="reader"></div>
+                <div className="scanner-corners">
+                  <span className="corner tl"/>
+                  <span className="corner tr"/>
+                  <span className="corner bl"/>
+                  <span className="corner br"/>
+                </div>
+              </div>
+              <p className="scanner-hint">
+                <span>📷</span> Arahkan kamera ke barcode atau QR Code pada tiket peserta
+              </p>
             </div>
           </div>
         )}
