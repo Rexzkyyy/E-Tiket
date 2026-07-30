@@ -651,13 +651,16 @@ const AdminDashboard: React.FC = () => {
 
         const availableExisting = [...(existingData || [])];
         const upsertPayload = mapped.map(newP => {
-          // Cari apakah nama lengkap sudah ada di database (abaikan besar/kecil huruf)
-          const matchIndex = availableExisting.findIndex(extP => extP.nama_lengkap.toLowerCase() === newP.nama_lengkap.toLowerCase());
+          // Cari apakah nama lengkap & WA sudah ada di database (abaikan besar/kecil huruf)
+          const matchIndex = availableExisting.findIndex(extP => 
+            extP.nama_lengkap.toLowerCase() === newP.nama_lengkap.toLowerCase() &&
+            extP.whatsapp === newP.whatsapp
+          );
           
           if (matchIndex !== -1) {
              const match = availableExisting[matchIndex];
-             // Hapus dari pool agar tidak terduplikasi jika ada nama yang sama persis lebih dari 1 di Excel
-             availableExisting.splice(matchIndex, 1);
+             // Kita TIDAK menghapus dari pool agar jika ada data ganda di Excel, 
+             // keduanya tetap menimpa 1 baris yang sama di database (tidak terduplikasi menjadi 2 barcode).
 
              // Jika sudah ada, gunakan barcode lama dan pertahankan status yang sudah berjalan
              return {
@@ -717,6 +720,19 @@ const AdminDashboard: React.FC = () => {
     if (editingParticipant) {
       result = await supabase.from('participants').update(data).eq('barcode', editingParticipant.barcode);
     } else {
+      // Validasi duplikat saat tambah manual
+      const { data: existing } = await supabase
+        .from('participants')
+        .select('barcode')
+        .eq('whatsapp', data.whatsapp)
+        .limit(1);
+        
+      if (existing && existing.length > 0) {
+        setScanResult({ success: false, message: `Gagal! Peserta dengan nomor WA ${data.whatsapp} sudah ada di database.` });
+        setTimeout(() => setScanResult(null), 5000);
+        return;
+      }
+
       const generatedBarcode = Math.floor(100000 + Math.random() * 900000).toString();
       result = await supabase.from('participants').insert([{ 
         ...data, 
