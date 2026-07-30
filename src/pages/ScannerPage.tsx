@@ -51,7 +51,7 @@ const ScannerPage: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('participants')
-        .select('nama_lengkap, validasi_bayar, status_absen, jenis_kelamin, usia, alamat, jenis_tiket')
+        .select('*')
         .eq('barcode', decodedText.trim())
         .single();
 
@@ -64,20 +64,92 @@ const ScannerPage: React.FC = () => {
 
       if (error || !data) {
         setScanResult({ success: false, message: 'Tiket Tidak Valid / Tidak Ditemukan!' });
-      } else if (data.status_absen === 'SUDAH') {
-        setScanResult({ success: false, message: 'Peserta ini SUDAH check-in sebelumnya!', name: data.nama_lengkap, ...extraInfo });
       } else if (data.validasi_bayar !== 'SUDAH') {
         setScanResult({ success: false, message: 'Pembayaran Belum Diverifikasi!', name: data.nama_lengkap, ...extraInfo });
       } else {
-        const waktuCheckin = new Date().toISOString();
-        await supabase
+        // --- SMART QUOTA LOGIC ---
+        const baseName = (data.nama_lengkap || '').replace(/\s*\(Tiket \d+\)\s*$/i, '').trim().toLowerCase();
+        const whatsapp = data.whatsapp || '';
+
+        // Fetch all rows matching this whatsapp to group them
+        const { data: groupData } = await supabase
           .from('participants')
-          .update({ 
-            status_absen: 'SUDAH',
-            waktu_absen: waktuCheckin,
-          })
-          .eq('barcode', decodedText.trim());
-        setScanResult({ success: true, message: 'Check-in Berhasil!', name: data.nama_lengkap, waktu_absen: waktuCheckin, ...extraInfo });
+          .select('*')
+          .eq('whatsapp', whatsapp);
+
+        // Filter group strictly by base name to avoid mixing different participants using the same WA
+        // DAN pastikan hanya menghitung baris data yang sudah LUNAS!
+        let groupRows = groupData || [data];
+        groupRows = groupRows.filter(r => 
+          (r.nama_lengkap || '').toLowerCase().includes(baseName) && 
+          r.validasi_bayar === 'SUDAH'
+        );
+
+        // Calculate True Quota
+        let totalQuota = 0;
+        const hasSplitTickets = groupRows.some(r => /\(Tiket \d+\)/i.test(r.nama_lengkap || ''));
+
+        groupRows.forEach(r => {
+          const isSplit = /\(Tiket \d+\)/i.test(r.nama_lengkap || '');
+          if (isSplit) {
+              totalQuota += 1;
+          } else {
+              if (hasSplitTickets) {
+                  totalQuota += 1; // Treated as 1 ticket if mixed with split tickets (likely stale row)
+              } else {
+                  totalQuota += (r.jumlah_tiket || 1); // Not split, rely on jumlah_tiket column
+              }
+          }
+        });
+
+        // Calculate Total Checked-in
+        const totalCheckedIn = groupRows.reduce((sum, r) => sum + (r.jumlah_checkin || 0), 0);
+
+        if (totalCheckedIn >= totalQuota) {
+          setScanResult({ 
+            success: false, 
+            message: `Kuota Rombongan Habis! (${totalCheckedIn} dari ${totalQuota} terpakai)`, 
+            name: data.nama_lengkap, 
+            ...extraInfo 
+          });
+        } else {
+          // --- AUTO PASSING (LEMPAR DATA) LOGIC ---
+          const getRowCapacity = (r: any) => {
+            const isSplit = /\\(Tiket \\d+\\)/i.test(r.nama_lengkap || '');
+            if (isSplit) return 1;
+            if (hasSplitTickets) return 1;
+            return r.jumlah_tiket || 1;
+          };
+
+          // Try to use the scanned row first
+          let targetRow = data;
+          let targetCapacity = getRowCapacity(data);
+
+          if ((data.jumlah_checkin || 0) >= targetCapacity) {
+             // Scanned row is full, find another row in the group that still has capacity
+             targetRow = groupRows.find(r => (r.jumlah_checkin || 0) < getRowCapacity(r)) || data;
+          }
+
+          const waktuCheckin = new Date().toISOString();
+          const newCheckinCount = (targetRow.jumlah_checkin || 0) + 1;
+          
+          await supabase
+            .from('participants')
+            .update({ 
+              status_absen: 'SUDAH',
+              waktu_absen: waktuCheckin,
+              jumlah_checkin: newCheckinCount
+            })
+            .eq('barcode', targetRow.barcode); // Update the TARGET row, not necessarily the scanned row!
+            
+          setScanResult({ 
+            success: true, 
+            message: `Berhasil! (Masuk: ${totalCheckedIn + 1} dari ${totalQuota})`, 
+            name: targetRow.nama_lengkap, // Show the name of the ticket that was actually updated
+            waktu_absen: waktuCheckin, 
+            ...extraInfo 
+          });
+        }
       }
     } catch (_) {
       setScanResult({ success: false, message: 'Terjadi kesalahan jaringan. Coba lagi.' });
