@@ -710,6 +710,7 @@ const AdminDashboard: React.FC = () => {
       nama_pengirim: (formData.get('nama_pengirim') as string) || null,
       harapan_event: (formData.get('harapan_event') as string) || null,
       status_wa: (formData.get('status_wa') as string) || 'BELUM',
+      jumlah_tiket: parseInt((formData.get('jumlah_tiket') as string) || '1', 10),
     };
 
     let result;
@@ -1311,9 +1312,9 @@ const AdminDashboard: React.FC = () => {
                       <option value="SUDAH">Terkirim</option>
                     </select>
                   </div>
-                  <div className="input-group" style={{ visibility: 'hidden' }}>
-                    <label>Placeholder</label>
-                    <select><option>N/A</option></select>
+                  <div className="input-group">
+                    <label>Jumlah Tiket</label>
+                    <input name="jumlah_tiket" type="number" min="1" defaultValue={editingParticipant?.jumlah_tiket || 1} required />
                   </div>
                 </div>
                 <button type="submit" className="submit-btn">{editingParticipant ? 'Simpan Perubahan' : 'Tambah Peserta'}</button>
