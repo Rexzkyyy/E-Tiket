@@ -1,103 +1,114 @@
-# E-Tiket Pro
+<div align="center">
+  <img src="docs/assets/index.png" alt="E-Tiket Cover" width="100%" />
+  
+  # 🎟️ E-Tiket Pro 
+  **Sistem Manajemen Tiket Event Berbasis Web**
+  
+  <p align="center">
+    <img src="https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react" alt="React" />
+    <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+    <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+  </p>
 
-Sistem manajemen tiket event berbasis web menggunakan **React + TypeScript + Supabase**.
+  <p>
+    E-Tiket Pro adalah solusi sistem manajemen tiket acara modern yang memungkinkan penyelenggara acara untuk memanajemen peserta secara real-time. Dilengkapi dengan dashboard admin, scanner barcode terintegrasi, dan notifikasi tiket otomatis via WhatsApp/Email.
+  </p>
+</div>
 
-## ✨ Fitur
+---
 
-- 📊 **Dashboard** — Statistik real-time (Total, Validasi, Menunggu, Absen)
-- 📂 **Import Excel** — Upload data peserta dari file `.xlsx`
-- 🔖 **Barcode Linear** — Generate barcode CODE128 otomatis per peserta
-- 📷 **Scanner Kamera** — Scan barcode langsung dari kamera HP/laptop
-- ✅ **Validasi Pembayaran** — Approve/Reject status bayar peserta
-- 📋 **Absensi Peserta** — Tandai kehadiran via scan barcode
-- 💬 **Kirim via WhatsApp** — Kirim tiket + link barcode ke WA peserta
-- 📧 **Kirim via Email** — Kirim tiket + link barcode ke email peserta
-- 🗑️ **Hapus Data** — Hapus individual / bersihkan semua data
-- 📱 **Responsive** — Bisa dipakai di HP, tablet, maupun desktop
+## 🌟 Fitur Unggulan
 
-## 🛠️ Tech Stack
+Proyek ini dibangun dengan berbagai fitur lengkap untuk memudahkan manajemen tiket. Anda dapat membaca detail dokumentasi fitur pada folder `docs/`:
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **Database**: Supabase (PostgreSQL)
-- **Barcode**: react-barcode (CODE128)
-- **Scanner**: html5-qrcode
-- **Excel**: xlsx
-- **Animasi**: Framer Motion
-- **Icons**: Lucide React
-- **Styling**: Pure CSS (Dark Mode)
+1. **[📊 Dashboard Admin & Statistik](docs/1_Dashboard_Admin.md)** — Panel admin lengkap dengan analitik, manajemen tabel, import dari Excel, hapus data, dan sistem validasi pembayaran.
+2. **[📷 Sistem Scanner Absensi](docs/2_Sistem_Scanner_Absensi.md)** — Mengubah kamera laptop atau HP menjadi alat *scan barcode* (CODE128) untuk absen kehadiran secara *real-time*.
+3. **[🎫 Halaman Tiket Publik](docs/3_Public_Ticket.md)** — Halaman khusus yang bisa diakses oleh peserta untuk melihat QR/Barcode tiket mereka sebelum di-scan.
+4. **[💌 Pengiriman Notifikasi (WA/Email)](docs/4_Kirim_Tiket_WA_Email.md)** — Fitur pendukung untuk mengirimkan detail tiket langsung ke WhatsApp dan Email milik peserta.
 
-## 🚀 Setup
+---
 
-### 1. Clone & Install
+## 🛠️ Teknologi yang Digunakan
+
+| Kategori | Teknologi | Deskripsi |
+| --- | --- | --- |
+| **Frontend Core** | React 18, TypeScript, Vite | Struktur aplikasi single-page modern, cepat dan type-safe. |
+| **Database & Auth** | Supabase (PostgreSQL) | Layanan backend-as-a-service yang menampung data peserta. |
+| **Barcode & QR** | `react-barcode`, `html5-qrcode` | Untuk generate (CODE128) dan pemindaian barcode dari kamera. |
+| **UI/UX & Styling** | Pure CSS (Dark Mode), Framer Motion, Lucide | Memberikan tampilan animasi yang smooth, dan desain responsif. |
+| **Utilities** | `xlsx`, `html2canvas`, `jspdf` | Import/Export data menggunakan Excel, serta rendering data. |
+
+---
+
+## 🚀 Panduan Instalasi (Setup)
+
+Ikuti langkah-langkah di bawah ini untuk menjalankan E-Tiket secara lokal.
+
+### 1. Kloning Repositori & Install Dependencies
+
 ```bash
-git clone <repo-url>
+git clone <repository-url>
 cd E-Tiket
 npm install
 ```
 
-### 2. Konfigurasi Supabase
-Buat tabel `participants` di Supabase dengan kolom berikut:
+### 2. Konfigurasi Database (Supabase)
 
-| Kolom | Tipe |
-|-------|------|
-| `barcode` | `text` (Primary Key) |
-| `nama_lengkap` | `text` |
-| `email` | `text` |
-| `jenis_kelamin` | `text` |
-| `usia` | `text` |
-| `alamat` | `text` |
-| `whatsapp` | `text` |
-| `jenis_tiket` | `text` |
-| `jumlah_tiket` | `text` |
-| `metode_pembayaran` | `text` |
-| `bukti_transfer` | `text` |
-| `nama_pengirim` | `text` |
-| `harapan_event` | `text` |
-| `konfirmasi_data` | `boolean` |
-| `validasi_bayar` | `text` (default: `'Pending'`) |
-| `status_absen` | `text` (default: `'Pending'`) |
-| `waktu_absen` | `text` |
-| `created_at` | `timestamptz` (default: `now()`) |
+Aplikasi ini menggunakan database dari Supabase. Buat proyek baru di Supabase dan buat tabel `participants` dengan skema berikut:
 
-**Disable RLS** untuk table `participants` (atau buat policy yang sesuai).
+| Kolom | Tipe Data | Pengaturan |
+|---|---|---|
+| `barcode` | `text` | **Primary Key** |
+| `nama_lengkap`, `email`, `jenis_kelamin`, `usia`, `alamat`, `whatsapp` | `text` | - |
+| `jenis_tiket`, `jumlah_tiket`, `metode_pembayaran`, `bukti_transfer`, `nama_pengirim`, `harapan_event` | `text` | - |
+| `konfirmasi_data` | `boolean` | - |
+| `validasi_bayar` | `text` | Default: `'Pending'` |
+| `status_absen` | `text` | Default: `'Pending'` |
+| `waktu_absen` | `text` | - |
+| `created_at` | `timestamptz` | Default: `now()` |
 
-### 3. Jalankan Aplikasi
+> **Catatan:** Jangan lupa untuk menonaktifkan *Row Level Security* (RLS) di tabel `participants` pada tahap development, atau buat _policies_ yang sesuai jika menuju production.
+
+### 3. Mengatur Kredensial Supabase di Aplikasi
+
+Setelah Anda menjalankan proyek dengan cara:
 ```bash
 npm run dev
 ```
+Buka browser dan arahkan ke `http://localhost:5173`. 
+1. Buka halaman utama aplikasi.
+2. Klik ikon pengaturan (⚙️) di bagian *navbar*.
+3. Masukkan **Project URL** (contoh: `https://xxxx.supabase.co`) dan **Anon Key** (contoh: `eyJhbGci...`) dari proyek Supabase Anda.
 
-Buka browser di `http://localhost:5173`
+---
 
-### 4. Konfigurasi Supabase di Aplikasi
-Klik ikon ⚙️ di navbar, masukkan:
-- **Project URL**: `https://xxxx.supabase.co`
-- **Anon Key**: `eyJhbGci...`
+## 📋 Panduan Import Excel
+Untuk mengimpor data massal, gunakan file excel dengan format berikut (file contoh ada di folder `archive/`):
 
-## 📋 Format Excel Import
+| Kolom Excel Wajib | Keterangan |
+| --- | --- |
+| `Nama Lengkap` | Nama Lengkap Peserta |
+| `Email` | Alamat Email |
+| `Jenis Kelamin` | `L` atau `P` |
+| `Usia` | Umur (contoh: 21) |
+| `Alamat` | Alamat tempat tinggal |
+| `Nomor WhatsApp` | Dimulai dengan 08 (contoh: 0812345678) |
+| `Jenis Tiket` | Kelas tiket (Regular, VIP, dll) |
+| `Jumlah Tiket` | Total tiket per pengguna |
+| `Metode Pembayaran` | Transfer Bank / E-Wallet |
+| `Validasi Bayar` | `Pending` atau `Approved` |
 
-Kolom yang didukung:
+---
 
-| Nama Kolom di Excel | Keterangan |
-|---------------------|------------|
-| Nama Lengkap | Nama peserta |
-| Email | Alamat email |
-| Jenis Kelamin | L / P |
-| Usia | Angka |
-| Alamat | Alamat peserta |
-| Nomor WhatsApp | Format: 08xx |
-| Jenis Tiket | Regular / VIP / dst |
-| Jumlah Tiket | Angka |
-| Metode Pembayaran | Transfer / QRIS / dst |
-| Validasi Bayar | Pending / Approved |
-
-> Jika kolom `Barcode` tidak ada di Excel, sistem akan generate otomatis.
-
-## 📦 Build Produksi
+## 📦 Build untuk Production
+Ketika siap di-*deploy* (contoh: ke Vercel atau Netlify), cukup jalankan perintah:
 
 ```bash
 npm run build
 ```
 
----
+Hasil _bundle_ statis akan digenerate ke folder `dist`.
 
-**Made with ❤️ for Event Management**
+---
+*Dibuat oleh [Ikhsanuddin Rezki]* 
